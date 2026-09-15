@@ -1,1 +1,584 @@
-<!doctype html><html><head><meta charset="utf-8"><title>test</title></head><body>test</body></html>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#090b0f" />
+  <title>Расчёт загрузки бригад</title>
+  <script src="https://unpkg.com/@vkontakte/vk-bridge@2.15.9/dist/browser.min.js"></script>
+  <script>
+    if (window.vkBridge) {
+      window.vkBridge.send('VKWebAppInit').catch(function (e) {
+        console.error('VKWebAppInit failed', e);
+      });
+    }
+  </script>
+  <style>
+    :root{
+      --bg:#090b0f;
+      --bg2:#0f1218;
+      --card:#151922;
+      --text:#f7f9fc;
+      --muted:#9ea7b3;
+      --line:rgba(255,255,255,.08);
+      --accent:#ff7a00;
+      --accent2:#ff9a3c;
+      --accentSoft:rgba(255,122,0,.10);
+      --success:#c6f5d5;
+      --danger:#ffd0d0;
+      --max:920px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0}
+    body{
+      min-height:100vh;
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 10% -10%,rgba(255,122,0,.16),transparent 35%),
+        radial-gradient(700px 360px at 100% 0%,rgba(255,122,0,.08),transparent 35%),
+        linear-gradient(180deg,#0a0d12,#090b0f);
+      overflow-x:hidden;
+    }
+
+    .wrap{width:min(calc(100% - 18px),var(--max));margin:0 auto;padding:22px 0 54px}
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:9px;
+      color:var(--accent2);font-size:13px;font-weight:900;letter-spacing:.09em;text-transform:uppercase
+    }
+    .eyebrow:before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 20px rgba(255,122,0,.5)}
+
+    h1,h2,h3,p{margin-top:0}
+    h1{font-size:clamp(38px,7vw,68px);line-height:.95;letter-spacing:-.06em;margin:16px 0 16px;max-width:820px}
+    .accent{color:var(--accent)}
+    .accentMark{color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));padding:0 .07em .015em;border-radius:.11em;line-height:1.04;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+    .accentWord{color:var(--accent);position:relative;white-space:nowrap}
+    .accentWord:after{content:"";position:absolute;left:0;right:0;bottom:-.08em;height:.09em;border-radius:99px;background:var(--accent);opacity:.9}
+    .timeBadge{display:inline-block;color:var(--accent);font-weight:950;margin-right:.18em}
+    .lead{font-size:clamp(18px,2.45vw,22px);line-height:1.48;color:#d7dce3;max-width:820px}
+
+    .shell{
+      margin-top:22px;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:linear-gradient(180deg,rgba(21,25,33,.92),rgba(11,14,19,.98));
+      overflow:hidden;
+      box-shadow:0 22px 70px rgba(0,0,0,.38)
+    }
+    .shelltop{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;padding:17px 20px;border-bottom:1px solid var(--line)}
+    .brand{font-weight:900;letter-spacing:-.02em}
+    .note{color:var(--muted);font-size:12px;text-align:right}
+
+    .progress{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:16px 20px 0}
+    .bar{height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+    .bar.done{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+
+    .content{padding:20px}
+    .panel{display:none}
+    .panel.active{display:block}
+    .q{font-size:29px;line-height:1.05;font-weight:900;letter-spacing:-.035em;margin-bottom:10px}
+    .sub{color:var(--muted);line-height:1.5;margin-bottom:18px}
+    .grid{display:grid;gap:11px}
+    .option,.btn{width:100%;min-height:58px;border-radius:18px;font:inherit;font-weight:850;cursor:pointer;transition:.18s ease}
+    .option{border:1px solid var(--line);background:rgba(255,255,255,.02);color:#fff;text-align:left;padding:0 18px}
+    .option:hover,.option.selected{border-color:rgba(255,122,0,.58);background:rgba(255,122,0,.09);transform:translateY(-1px)}
+    .input{width:100%;min-height:62px;border-radius:18px;border:1px solid var(--line);background:rgba(0,0,0,.2);color:#fff;padding:0 16px;font:inherit;font-size:18px;outline:none}
+    .input:focus{border-color:rgba(255,122,0,.6);box-shadow:0 0 0 4px rgba(255,122,0,.08)}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+    .btn{border:none;padding:0 18px}
+    .btn:disabled{opacity:.55;cursor:default}
+    .primary{background:linear-gradient(135deg,var(--accent),#ff9c40);color:#fff;box-shadow:0 14px 28px rgba(255,122,0,.16)}
+    .ghost{background:transparent;color:#fff;border:1px solid var(--line)}
+
+    .loader{text-align:center;padding:30px 10px 36px}
+    .loaderBig{font-size:clamp(34px,6vw,58px);line-height:1;letter-spacing:-.055em;font-weight:950;margin:14px auto 0;max-width:720px;animation:fade .5s ease forwards}
+    .loaderBig span{color:var(--accent)}
+    @keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+    .spinner{width:66px;height:66px;margin:22px auto 0;border:4px solid rgba(255,255,255,.1);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .center{ text-align:center; }
+    .arrow{font-size:30px;color:var(--accent);line-height:1;margin:6px 0 12px}
+    .resultTitle{font-size:clamp(31px,5vw,50px);font-weight:950;line-height:1.05;letter-spacing:-.045em;max-width:780px;margin:0 auto 6px}
+    .pill{display:inline-block;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,122,0,.26);background:rgba(255,122,0,.08);color:#ffe1c4;font-weight:800;font-size:13px;margin-bottom:18px}
+
+    .metricsGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:10px}
+    .metricCard.primaryMetric{border-color:rgba(255,122,0,.26);background:linear-gradient(180deg,rgba(255,122,0,.08),rgba(255,255,255,.025))}
+    .funnelGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+    .revenueCard{margin-top:14px;border:1px solid rgba(255,122,0,.38);background:linear-gradient(135deg,rgba(255,122,0,.17),rgba(255,122,0,.045));border-radius:26px;padding:24px 26px;text-align:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
+    .revenueEyebrow{font-size:15px;letter-spacing:.01em;font-weight:900;color:#fff;margin-bottom:10px}
+    .revenueValue{font-size:clamp(42px,8vw,82px);font-weight:950;letter-spacing:-.07em;line-height:.95;color:#ff4d4f;margin-bottom:8px;text-shadow:0 0 26px rgba(255,77,79,.16)}
+    .revenueText{font-size:clamp(19px,2.7vw,25px);font-weight:900;line-height:1.2;margin:0 auto 8px;max-width:720px;color:#fff}
+    .revenueNote{font-size:13px;color:var(--muted)}
+    .metricCard{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));border-radius:24px;padding:20px;position:relative;overflow:hidden}
+    .metricCard:before{content:"";position:absolute;inset:auto -40px -60px auto;width:160px;height:160px;background:radial-gradient(circle, rgba(255,122,0,.18), transparent 60%);pointer-events:none}
+    .metricValue{font-size:clamp(42px,7vw,82px);font-weight:950;letter-spacing:-.07em;line-height:.92;color:var(--accent);margin-bottom:8px}
+    .metricLabel{font-size:19px;line-height:1.1;font-weight:900;color:#fff;margin-bottom:6px}
+    .metricSub{color:var(--muted);font-size:14px;line-height:1.45}
+
+    .reveal{opacity:0;transform:translateY(22px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.2,1)}
+    .reveal.visible{opacity:1;transform:none}
+    .revenueReveal{position:relative;display:inline-grid;place-items:center;min-width:min(100%,560px);min-height:94px;margin:2px auto 8px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+    .revenueValue{transition:filter .4s ease,opacity .4s ease,transform .45s ease}
+    .revenueReveal:not(.revealed) .revenueValue{filter:blur(14px);opacity:.28;transform:scale(.985)}
+    .revenueCover{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;overflow:hidden;border-radius:18px}
+    .revenueCoverText{position:relative;z-index:3;padding:9px 14px;border:1px solid rgba(255,255,255,.13);border-radius:999px;background:rgba(9,11,15,.76);backdrop-filter:blur(8px);color:#fff;font-size:13px;font-weight:850;letter-spacing:.01em;transition:opacity .25s ease,transform .35s ease}
+    .shard{position:absolute;left:50%;top:50%;width:58px;height:38px;background:linear-gradient(135deg,rgba(255,122,0,.9),rgba(255,154,60,.38));clip-path:polygon(0 0,100% 18%,68% 100%,12% 74%);opacity:.72;transform:translate(-50%,-50%) rotate(var(--r)) translate(var(--x),var(--y));transition:transform .62s cubic-bezier(.18,.75,.25,1),opacity .55s ease}
+    .revenueReveal.revealed .revenueValue{filter:none;opacity:1;transform:scale(1)}
+    .revenueReveal.revealed .revenueCoverText{opacity:0;transform:scale(.86)}
+    .revenueReveal.revealed .shard{opacity:0;transform:translate(-50%,-50%) rotate(calc(var(--r) + 28deg)) translate(calc(var(--x) * 3.2),calc(var(--y) * 3.2)) scale(.45)}
+
+    .summaryCard{margin-top:18px;border:1px solid rgba(255,122,0,.22);background:linear-gradient(135deg,rgba(255,122,0,.10),rgba(255,122,0,.03));border-radius:24px;padding:26px;text-align:center}
+    .summaryText{font-size:clamp(19px,2.7vw,24px);line-height:1.65;color:#f2f5f8;max-width:760px;margin:0 auto}
+    .summaryText b{color:var(--accent)}
+
+    .cta{margin-top:18px;border:1px solid rgba(255,122,0,.24);background:linear-gradient(135deg,rgba(255,122,0,.1),rgba(255,122,0,.03));border-radius:24px;padding:22px}
+    .cta h2{font-size:clamp(30px,5vw,44px);line-height:1.04;letter-spacing:-.05em;margin-bottom:10px;text-align:center}
+    .cta h2 .accentHead{color:var(--accent)}
+    .small{font-size:12px;color:var(--muted);line-height:1.5;margin-top:14px}
+
+    .leadbox{display:none;margin-top:18px}
+    .leadbox.active{display:block}
+    .success{display:none;margin-top:12px;padding:13px 14px;border:1px solid rgba(79,213,123,.25);background:rgba(79,213,123,.08);border-radius:14px;color:var(--success);font-size:14px}
+    .error{display:none;margin-top:12px;padding:13px 14px;border:1px solid rgba(255,91,91,.25);background:rgba(255,91,91,.08);border-radius:14px;color:var(--danger);font-size:14px}
+
+    @media(max-width:760px){
+      .metricsGrid,.funnelGrid{grid-template-columns:1fr}
+      .shelltop{display:block}
+      .note{text-align:left;margin-top:8px}
+    }
+    @media(max-width:560px){
+      .content{padding:17px}
+      .actions{display:grid}
+      .btn{width:100%}
+      .q{font-size:25px}
+      .metricValue{font-size:50px}
+      .summaryCard{padding:22px 18px}
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="eyebrow">Реальная загрузка бригад под твои условия</div>
+    <h1>Сколько заказов тебе <span class="accentMark">не хватает</span> до <span class="accentWord">стабильной</span> загрузки бригад?</h1>
+    <p class="lead"><span class="timeBadge">За 30 секунд</span> покажем, какой поток заказов, замеров и обращений нужен, чтобы твоя бригада не убежала к конкурентам от простоя.</p>
+
+    <section class="shell">
+      <div class="shelltop">
+        <div class="brand">Расчёт загрузки бригад</div>
+        <div class="note">Средний объект ~40 м²<br>20 рабочих дней в месяц</div>
+      </div>
+
+      <div class="progress">
+        <div class="bar done" id="p1"></div>
+        <div class="bar" id="p2"></div>
+        <div class="bar" id="p3"></div>
+      </div>
+
+      <div class="content">
+        <section class="panel active" id="step1">
+          <div class="q">Сколько у тебя бригад?</div>
+          <div class="sub">По количеству бригад считаем ориентир стабильной загрузки.</div>
+          <div class="grid">
+            <button class="option" data-teams="1">1 бригада</button>
+            <button class="option" data-teams="2">2 бригады</button>
+            <button class="option" data-teams="3">3 бригады</button>
+            <button class="option" data-teams="4">4 бригады</button>
+            <button class="option" data-teams="5">5+ бригад</button>
+          </div>
+        </section>
+
+        <section class="panel" id="step2">
+          <div class="q">Сколько объектов делаете сейчас в среднем за месяц?</div>
+          <div class="sub">Можно примерно. Нам важен порядок цифр, а не точность до одного объекта.</div>
+          <input class="input" id="current" type="number" min="0" max="300" inputmode="numeric" placeholder="Например, 28" />
+          <div class="actions">
+            <button class="btn primary" id="next2">Дальше</button>
+            <button class="btn ghost" id="back1">Назад</button>
+          </div>
+        </section>
+
+        <section class="panel" id="step3">
+          <div class="q">Введите город, где оказываете услугу</div>
+          <div class="sub">Нужен основной город, чтобы дальше оценить спрос и реальную нагрузку под твои возможности.</div>
+          <input class="input" id="city" type="text" inputmode="text" autocomplete="address-level2" placeholder="Например, Воронеж" />
+          <div class="actions">
+            <button class="btn primary" id="calc">Показать расчёт</button>
+            <button class="btn ghost" id="back2">Назад</button>
+          </div>
+        </section>
+
+        <section class="panel" id="loading">
+          <div class="loader">
+            <div class="eyebrow">Считаем ориентир</div>
+            <div class="loaderBig">Тебе нужны <span>клиенты, которые платят</span>.</div>
+            <div class="spinner"></div>
+            <p class="sub" style="margin-top:18px">Считаем нужный объём заказов, замеров, обращений и просмотров.</p>
+          </div>
+        </section>
+
+        <section class="panel" id="result">
+          <div class="center">
+            <div class="pill" id="cityPill">Город: —</div>
+            <div class="resultTitle">Вот какой объём нужен, чтобы бригады <span class="accent">не жили от случая к случаю</span></div>
+            <div class="arrow">↓</div>
+          </div>
+
+          <div class="metricsGrid">
+            <div class="metricCard primaryMetric reveal">
+              <div class="metricValue" id="orders">44</div>
+              <div class="metricLabel">объекта в месяц</div>
+              <div class="metricSub">ориентир стабильной загрузки для <span id="teamsLabel">2 бригад</span></div>
+            </div>
+
+            <div class="metricCard primaryMetric reveal">
+              <div class="metricValue" id="gap">16</div>
+              <div class="metricLabel">объектов в месяц</div>
+              <div class="metricSub">сейчас не хватает до стабильной загрузки</div>
+            </div>
+          </div>
+
+          <div class="funnelGrid">
+            <div class="metricCard reveal">
+              <div class="metricValue" id="measures">63</div>
+              <div class="metricLabel">замера в месяц</div>
+              <div class="metricSub">примерно столько нужно провести, чтобы держать нужный объём объектов</div>
+            </div>
+
+            <div class="metricCard reveal">
+              <div class="metricValue" id="leads">191</div>
+              <div class="metricLabel">обращение в месяц</div>
+              <div class="metricSub">примерно такой входящий поток нужен до этапа замера</div>
+            </div>
+
+            <div class="metricCard reveal">
+              <div class="metricValue" id="views">1318</div>
+              <div class="metricLabel">просмотров в месяц</div>
+              <div class="metricSub">при средней конверсии просмотра в обращение 14,5%</div>
+            </div>
+          </div>
+
+          <div class="revenueCard reveal">
+            <div class="revenueEyebrow">Это примерно</div>
+            <div class="revenueReveal" id="revenueReveal" role="button" tabindex="0" aria-label="Показать потерянную выручку">
+              <div class="revenueValue" id="lostRevenue">400 000 ₽</div>
+              <div class="revenueCover">
+                <span class="shard" style="--r:-28deg;--x:-115px;--y:-24px"></span>
+                <span class="shard" style="--r:18deg;--x:-58px;--y:22px"></span>
+                <span class="shard" style="--r:44deg;--x:8px;--y:-28px"></span>
+                <span class="shard" style="--r:-12deg;--x:72px;--y:20px"></span>
+                <span class="shard" style="--r:31deg;--x:128px;--y:-18px"></span>
+                <span class="shard" style="--r:8deg;--x:-8px;--y:30px"></span>
+                <span class="revenueCoverText">Нажми, чтобы увидеть сумму</span>
+              </div>
+            </div>
+            <div class="revenueText">потерянной выручки уже сейчас</div>
+            <div class="revenueNote">при среднем чеке 25 000 ₽ за объект</div>
+          </div>
+
+          <div class="metricsGrid" style="margin-top:14px">
+            <div class="metricCard reveal">
+              <div class="metricValue" id="currentShow">28</div>
+              <div class="metricLabel">объектов в месяц</div>
+              <div class="metricSub">делаете сейчас в среднем</div>
+            </div>
+            <div class="metricCard reveal">
+              <div class="metricValue" id="currentRevenue">700 000 ₽</div>
+              <div class="metricLabel">текущая выручка</div>
+              <div class="metricSub">ориентир при среднем чеке 25 000 ₽</div>
+            </div>
+          </div>
+
+          <div class="summaryCard reveal">
+            <p class="summaryText" id="resultText"></p>
+          </div>
+
+          <div class="cta reveal">
+            <h2><span class="accentHead">Теперь главный вопрос:</span><br>реально ли забрать этот объём в твоём городе?</h2>
+            <div class="sub">Посмотрим спрос, конкуренцию и реальную нагрузку конкретно под твои возможности. Если рынок позволяет, скажем, какой для этого нужен бюджет, сколько будет стоить заявка и сколько будет стоить клиент, который готов платить.</div>
+            <button class="btn primary" id="openLead">Проверить объём по моему городу</button>
+          </div>
+
+          <div class="small">Расчёт основан на средних показателях наших клиентов при объекте от 40 м² и 20 рабочих днях в месяц.</div>
+        </section>
+
+        <section class="panel" id="result5">
+          <div class="center">
+            <div class="pill" id="cityPill5">5+ бригад</div>
+            <div class="resultTitle">Для команды 5+ бригад универсальная модель уже начинает врать.</div>
+          </div>
+          <div class="metricCard" style="margin-top:18px">
+            <div class="metricSub" style="font-size:18px;color:#f3f6f8">На таком объёме загрузка сильнее зависит от логистики, среднего объёма объекта, географии и распределения монтажей. Поэтому здесь нужен индивидуальный расчёт по фактической мощности команды.</div>
+            <div class="actions"><button class="btn primary" id="openLead5">Посчитать загрузку индивидуально</button></div>
+          </div>
+        </section>
+
+        <section class="leadbox" id="leadBox">
+          <div class="metricCard" style="margin-top:18px">
+            <div class="eyebrow">Следующий шаг</div>
+            <h2 style="font-size:32px;line-height:1.04;letter-spacing:-.04em;margin:12px 0 10px">Проверим, способен ли спрос в твоём городе закрыть этот объём.</h2>
+            <div class="sub">Оставь контакт и напиши удобное время. На коротком звонке уточним ситуацию и расскажем, что мы сможем сделать под твои условия работы.</div>
+            <div class="grid">
+              <input class="input" id="name" type="text" placeholder="Имя" />
+              <input class="input" id="phone" type="tel" placeholder="+7 999 000-00-00" />
+              <input class="input" id="time" type="text" placeholder="Когда удобно созвониться?" />
+            </div>
+            <label class="privacyConsent" style="display:flex;align-items:flex-start;gap:10px;margin-top:14px;color:var(--muted);font-size:13px;line-height:1.45;cursor:pointer">
+              <input id="privacyConsent" type="checkbox" style="margin-top:3px;accent-color:var(--accent)">
+              <span>Согласен на обработку персональных данных и ознакомлен с <a href="./privacy-policy.html" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">политикой конфиденциальности</a>.</span>
+            </label>
+            <button class="btn primary" id="submit" style="margin-top:12px">Отправить заявку</button>
+            <div class="success" id="success">Заявка отправлена. Свяжемся с тобой в указанное время.</div>
+            <div class="error" id="error">Не удалось отправить заявку. Попробуй ещё раз.</div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+<script>
+const WEBHOOK='https://script.google.com/macros/s/AKfycbzJ0Jl_7sx_Dtp6Aana2vHrhoC0VTj5Jtod4o3Mz-nkHW7DYguFScr27H4OenUdJ5mtNA/exec';
+const VIEW_TO_LEAD_CONV = 0.145;
+const targets={1:24,2:44,3:67,4:83};
+
+function readEntryParams(){
+  const merged = new URLSearchParams(window.location.search);
+  const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash;
+  const hashParams = new URLSearchParams(hash);
+  hashParams.forEach((v,k)=>{ if(!merged.has(k)) merged.set(k,v); });
+  return {
+    campaign: merged.get('campaign') || merged.get('utm_campaign') || '',
+    ad: merged.get('ad') || merged.get('utm_content') || '',
+    source: merged.get('src') || merged.get('utm_source') || 'VK Mini App / Ветка A'
+  };
+}
+
+const tracking=readEntryParams();
+const state={teams:null,current:0,city:''};
+const names=['step1','step2','step3','loading','result','result5'];
+const panels=Object.fromEntries(names.map(x=>[x,document.getElementById(x)]));
+
+function show(name){
+  const y = window.scrollY;
+  Object.values(panels).forEach(p=>p.classList.remove('active'));
+  panels[name].classList.add('active');
+  requestAnimationFrame(()=>window.scrollTo(0,y));
+}
+
+function prog(n){
+  [1,2,3].forEach(i=>document.getElementById('p'+i).classList.toggle('done',i<=n));
+}
+
+function pluralTeams(n){
+  if(n===1) return '1 бригады';
+  return n + ' бригад';
+}
+
+const cityInput = document.getElementById('city');
+cityInput.addEventListener('input', () => {
+  cityInput.value = cityInput.value.replace(/[0-9]/g, '');
+});
+
+document.querySelectorAll('[data-teams]').forEach(btn => {
+  btn.onclick = () => {
+    state.teams = +btn.dataset.teams;
+    document.querySelectorAll('[data-teams]').forEach(x=>x.classList.remove('selected'));
+    btn.classList.add('selected');
+    prog(2);
+    setTimeout(()=>show('step2'),120);
+  };
+});
+
+document.getElementById('next2').onclick = () => {
+  const v = +document.getElementById('current').value;
+  if(!Number.isFinite(v) || v < 0){
+    alert('Укажи примерное количество объектов в месяц');
+    return;
+  }
+  state.current = v;
+  prog(3);
+  show('step3');
+};
+
+document.getElementById('back1').onclick = ()=>{ prog(1); show('step1'); };
+document.getElementById('back2').onclick = ()=>{ prog(2); show('step2'); };
+
+document.getElementById('calc').onclick = () => {
+  const c = cityInput.value.trim();
+  if(!c){
+    alert('Укажи город');
+    return;
+  }
+  if(/[0-9]/.test(c)){
+    alert('В названии города не должно быть цифр');
+    return;
+  }
+  state.city = c;
+  show('loading');
+
+  setTimeout(() => {
+    if(state.teams >= 5){
+      document.getElementById('cityPill5').textContent = 'Город: ' + c + ' • 5+ бригад';
+      show('result5');
+      return;
+    }
+
+    const targetOrders = targets[state.teams];
+    const orderGap = Math.max(0, targetOrders - state.current);
+    const requiredMeasures = Math.ceil(targetOrders / 0.70);
+    const requiredLeads = Math.ceil(requiredMeasures / 0.33);
+    const requiredViews = Math.ceil(requiredLeads / VIEW_TO_LEAD_CONV);
+    const avgTicket = 25000;
+    const lostRevenue = orderGap * avgTicket;
+    const currentRevenue = state.current * avgTicket;
+
+    document.getElementById('cityPill').textContent = 'Город: ' + c;
+    document.getElementById('orders').textContent = targetOrders;
+    document.getElementById('measures').textContent = requiredMeasures;
+    document.getElementById('leads').textContent = requiredLeads;
+    document.getElementById('views').textContent = requiredViews;
+    document.getElementById('currentShow').textContent = state.current;
+    document.getElementById('gap').textContent = orderGap;
+    const lostRevenueEl = document.getElementById('lostRevenue');
+    lostRevenueEl.dataset.target = String(lostRevenue);
+    lostRevenueEl.textContent = '••• ••• ₽';
+    document.getElementById('currentRevenue').textContent = currentRevenue.toLocaleString('ru-RU') + ' ₽';
+    document.getElementById('teamsLabel').textContent = pluralTeams(state.teams);
+    document.getElementById('revenueReveal').classList.remove('revealed');
+
+    const resultText = document.getElementById('resultText');
+    if(orderGap > 0){
+      resultText.innerHTML = 'Сейчас тебе не хватает примерно <b>' + orderGap + ' объектов в месяц</b> до стабильной загрузки. Чтобы выйти на нужный результат, нужен поток около <b>' + requiredLeads + ' обращений</b>, которые конвертируются примерно в <b>' + requiredMeasures + ' замера</b> и дают около <b>' + targetOrders + ' объектов</b>.';
+    } else {
+      resultText.innerHTML = 'По базовой модели ты уже находишься примерно на уровне стабильной загрузки. Следующий вопрос — насколько этот объём устойчив и не проседает ли загрузка по неделям.';
+    }
+
+    show('result');
+  }, 5000);
+};
+
+function openLeadBox(){
+  const box = document.getElementById('leadBox');
+  box.classList.add('active');
+  setTimeout(()=>box.scrollIntoView({behavior:'smooth', block:'start'}), 80);
+}
+
+document.getElementById('openLead').onclick = openLeadBox;
+document.getElementById('openLead5').onclick = openLeadBox;
+
+const revealObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+},{threshold:.16,rootMargin:'0px 0px -7% 0px'});
+
+document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
+
+const revenueReveal = document.getElementById('revenueReveal');
+let revenueAnimating = false;
+
+function animateRevenueNumber(){
+  const el = document.getElementById('lostRevenue');
+  const target = Number(el.dataset.target || 0);
+  const duration = 1450;
+  const start = performance.now();
+  revenueAnimating = true;
+
+  function frame(now){
+    const p = Math.min(1, (now - start) / duration);
+    const ease = 1 - Math.pow(1 - p, 4);
+    const jitterStrength = Math.pow(1 - p, 2);
+    const jitter = (Math.random() - .5) * Math.max(target * .22, 50000) * jitterStrength;
+    const value = Math.max(0, Math.round((target * ease + jitter) / 1000) * 1000);
+    el.textContent = value.toLocaleString('ru-RU') + ' ₽';
+    if(p < 1){
+      requestAnimationFrame(frame);
+    } else {
+      el.textContent = target.toLocaleString('ru-RU') + ' ₽';
+      revenueAnimating = false;
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function revealRevenue(){
+  if(revenueReveal.classList.contains('revealed') || revenueAnimating) return;
+  revenueReveal.classList.add('revealed');
+  revenueReveal.setAttribute('aria-label','Потерянная выручка показана');
+  setTimeout(animateRevenueNumber, 170);
+}
+revenueReveal.addEventListener('click',revealRevenue);
+revenueReveal.addEventListener('keydown',(e)=>{
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();revealRevenue();}
+});
+
+document.getElementById('submit').onclick = async () => {
+  const n = document.getElementById('name').value.trim();
+  const p = document.getElementById('phone').value.trim();
+  const t = document.getElementById('time').value.trim();
+  const consent = document.getElementById('privacyConsent').checked;
+  if(!n || !p || !t){
+    alert('Заполни имя, телефон и удобное время');
+    return;
+  }
+  if(!consent){
+    alert('Подтверди согласие на обработку персональных данных');
+    return;
+  }
+
+  const btn = document.getElementById('submit');
+  const ok = document.getElementById('success');
+  const err = document.getElementById('error');
+
+  btn.disabled = true;
+  btn.textContent = 'Отправляем...';
+  ok.style.display = 'none';
+  err.style.display = 'none';
+
+  let targetOrders='',orderGap='',requiredMeasures='',requiredLeads='';
+  if(state.teams < 5){
+    targetOrders = targets[state.teams];
+    orderGap = Math.max(0, targetOrders - state.current);
+    requiredMeasures = Math.ceil(targetOrders / 0.70);
+    requiredLeads = Math.ceil(requiredMeasures / 0.33);
+  }
+
+  const payload = {
+    name:n,
+    phone:p,
+    city:state.city,
+    teams:state.teams,
+    currentOrders:state.current,
+    targetOrders,
+    orderGap,
+    requiredMeasures,
+    requiredLeads,
+    callTime:t,
+    source:tracking.source,
+    campaign:tracking.campaign,
+    ad:tracking.ad,
+  };
+
+  try {
+    await fetch(WEBHOOK, {
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(payload)
+    });
+    ok.style.display='block';
+    btn.textContent='Заявка отправлена';
+  } catch(e){
+    console.error(e);
+    err.style.display='block';
+    btn.disabled=false;
+    btn.textContent='Отправить заявку';
+  }
+};
+</script>
+</body>
+</html>
