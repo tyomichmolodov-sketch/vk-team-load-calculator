@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#090b0f" />
   <title>Расчёт загрузки бригад</title>
+  <script src="https://unpkg.com/@vkontakte/vk-bridge@2.15.9/dist/browser.min.js"></script>
+  <script>
+    if (window.vkBridge) {
+      window.vkBridge.send('VKWebAppInit').catch(function (e) {
+        console.error('VKWebAppInit failed', e);
+      });
+    }
+  </script>
   <style>
     :root{--bg:#090b0f;--card:#151922;--text:#f7f9fc;--muted:#9ea7b3;--line:rgba(255,255,255,.08);--accent:#ff7a00;--accent2:#ff9a3c;--max:860px}
     *{box-sizing:border-box}html,body{margin:0}body{min-height:100vh;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(900px 500px at 10% -10%,rgba(255,122,0,.16),transparent 35%),linear-gradient(180deg,#0a0d12,#090b0f);overflow-x:hidden}
@@ -31,87 +39,28 @@
     <div class="eyebrow">Мини-расчёт загрузки</div>
     <h1>Сколько заказов тебе не хватает до стабильной загрузки бригад?</h1>
     <p class="lead">За 30 секунд покажем, какой поток заказов, замеров и обращений вообще нужен, чтобы бригады не сидели без работы.</p>
-
     <section class="shell">
       <div class="shelltop"><div class="brand">Расчёт загрузки бригад<small>ветка A • VK Mini App</small></div><div class="note">Средний объект ~40 м²<br>20 рабочих дней в месяц</div></div>
       <div class="progress"><div class="bar done" id="p1"></div><div class="bar" id="p2"></div><div class="bar" id="p3"></div></div>
       <div class="content">
-
-        <section class="panel active" id="step1">
-          <div class="q">Сколько у тебя бригад?</div>
-          <div class="sub">По количеству бригад считаем ориентир стабильной загрузки.</div>
-          <div class="grid">
-            <button class="option" data-teams="1">1 бригада</button>
-            <button class="option" data-teams="2">2 бригады</button>
-            <button class="option" data-teams="3">3 бригады</button>
-            <button class="option" data-teams="4">4 бригады</button>
-            <button class="option" data-teams="5">5+ бригад</button>
-          </div>
-        </section>
-
-        <section class="panel" id="step2">
-          <div class="q">Сколько монтажей делаете сейчас в среднем за месяц?</div>
-          <div class="sub">Можно примерно. Нам важен порядок цифр, а не точность до одного объекта.</div>
-          <input class="input" id="current" type="number" min="0" max="300" inputmode="numeric" placeholder="Например, 28" />
-          <div class="actions"><button class="btn primary" id="next2">Дальше</button><button class="btn ghost" id="back1">Назад</button></div>
-        </section>
-
-        <section class="panel" id="step3">
-          <div class="q">В каком городе работаешь?</div>
-          <div class="sub">Это понадобится на следующем шаге, чтобы понять, способен ли местный спрос дать нужный объём.</div>
-          <input class="input" id="city" type="text" placeholder="Например, Воронеж" />
-          <div class="actions"><button class="btn primary" id="calc">Показать расчёт</button><button class="btn ghost" id="back2">Назад</button></div>
-        </section>
-
-        <section class="panel" id="loading">
-          <div class="loader"><div class="eyebrow">Считаем ориентир</div><div class="loaderBig">Тебе нужны <span>клиенты, которые платят</span>.</div><div class="spinner"></div><p class="sub" style="margin-top:18px">Считаем нужный объём заказов, замеров и обращений.</p></div>
-        </section>
-
-        <section class="panel" id="result">
-          <div class="pill" id="cityPill">Город: —</div>
-          <div class="resultTitle">Вот какой объём нужен, чтобы бригады не жили от случая к случаю.</div>
-          <div class="hero">
-            <div class="card"><div class="big" id="orders">44</div><div class="copy">заказа в месяц — ориентир стабильной загрузки для <span id="teamsLabel">2 бригад</span>.</div></div>
-            <div class="stack"><div class="card"><b id="measures">63</b><span>замера примерно нужно в месяц</span></div><div class="card"><b id="leads">191</b><span>обращение примерно нужно в месяц</span></div></div>
-          </div>
-          <div class="path"><div class="pathgrid"><div class="pathitem"><b id="currentShow">28</b><span>монтажей делаешь сейчас</span></div><div class="pathitem"><b id="gap">16</b><span>заказов сейчас не хватает до стабильной загрузки</span></div><div class="pathitem"><b id="leads2">191</b><span>обращениев нужно собирать в месяц</span></div></div></div>
-          <div class="resultCopy" id="resultText"></div>
-          <div class="cta"><h2>Теперь главный вопрос: реально ли забрать этот объём в твоём городе?</h2><div class="sub">Посмотрим спрос, конкуренцию и текущий аккаунт Авито. Если рынок позволяет, скажем, какой бюджет нужен и на какой KPI можно ориентироваться.</div><button class="btn primary" id="openLead">Проверить объём по моему городу</button></div>
-          <div class="small">Расчёт ориентировочный. Основан на среднем объекте около 40 м², 20 рабочих днях в месяц, конверсии замер → заказ ~70% и обращение → замер ~33%.</div>
-        </section>
-
-        <section class="panel" id="result5">
-          <div class="pill" id="cityPill5">5+ бригад</div>
-          <div class="resultTitle">Для команды 5+ бригад универсальная модель уже начинает врать.</div>
-          <div class="card"><div class="copy">На таком объёме загрузка сильнее зависит от логистики, среднего объёма объекта, географии и распределения монтажей. Поэтому здесь нужен индивидуальный расчёт по фактической мощности команды.</div><div class="actions"><button class="btn primary" id="openLead5">Посчитать загрузку индивидуально</button></div></div>
-        </section>
-
-        <section class="leadbox" id="leadBox">
-          <div class="card">
-            <div class="eyebrow">Следующий шаг</div>
-            <h2 style="font-size:30px;line-height:1.04;letter-spacing:-.04em;margin:12px 0 10px">Проверим, способен ли спрос в твоём городе закрыть этот объём.</h2>
-            <div class="sub">Оставь контакт и удобное время. На коротком звонке уточним ситуацию и посмотрим твой аккаунт.</div>
-            <div class="grid"><input class="input" id="name" type="text" placeholder="Имя" /><input class="input" id="phone" type="tel" placeholder="+7 999 000-00-00" /><input class="input" id="time" type="text" placeholder="Когда удобно созвониться?" /></div>
-            <button class="btn primary" id="submit" style="margin-top:12px">Выбрать время звонка</button>
-            <div class="success" id="success">Готово. На следующем шаге подключим реальную отправку заявки.</div>
-          </div>
-        </section>
-
+        <section class="panel active" id="step1"><div class="q">Сколько у тебя бригад?</div><div class="sub">По количеству бригад считаем ориентир стабильной загрузки.</div><div class="grid"><button class="option" data-teams="1">1 бригада</button><button class="option" data-teams="2">2 бригады</button><button class="option" data-teams="3">3 бригады</button><button class="option" data-teams="4">4 бригады</button><button class="option" data-teams="5">5+ бригад</button></div></section>
+        <section class="panel" id="step2"><div class="q">Сколько монтажей делаете сейчас в среднем за месяц?</div><div class="sub">Можно примерно. Нам важен порядок цифр, а не точность до одного объекта.</div><input class="input" id="current" type="number" min="0" max="300" inputmode="numeric" placeholder="Например, 28" /><div class="actions"><button class="btn primary" id="next2">Дальше</button><button class="btn ghost" id="back1">Назад</button></div></section>
+        <section class="panel" id="step3"><div class="q">В каком городе работаешь?</div><div class="sub">Это понадобится на следующем шаге, чтобы понять, способен ли местный спрос дать нужный объём.</div><input class="input" id="city" type="text" placeholder="Например, Воронеж" /><div class="actions"><button class="btn primary" id="calc">Показать расчёт</button><button class="btn ghost" id="back2">Назад</button></div></section>
+        <section class="panel" id="loading"><div class="loader"><div class="eyebrow">Считаем ориентир</div><div class="loaderBig">Тебе нужны <span>клиенты, которые платят</span>.</div><div class="spinner"></div><p class="sub" style="margin-top:18px">Считаем нужный объём заказов, замеров и обращений.</p></div></section>
+        <section class="panel" id="result"><div class="pill" id="cityPill">Город: —</div><div class="resultTitle">Вот какой объём нужен, чтобы бригады не жили от случая к случаю.</div><div class="hero"><div class="card"><div class="big" id="orders">44</div><div class="copy">заказа в месяц — ориентир стабильной загрузки для <span id="teamsLabel">2 бригад</span>.</div></div><div class="stack"><div class="card"><b id="measures">63</b><span>замера примерно нужно в месяц</span></div><div class="card"><b id="leads">191</b><span>обращение примерно нужно в месяц</span></div></div></div><div class="path"><div class="pathgrid"><div class="pathitem"><b id="currentShow">28</b><span>монтажей делаешь сейчас</span></div><div class="pathitem"><b id="gap">16</b><span>заказов сейчас не хватает до стабильной загрузки</span></div><div class="pathitem"><b id="leads2">191</b><span>обращений нужно собирать в месяц</span></div></div></div><div class="resultCopy" id="resultText"></div><div class="cta"><h2>Теперь главный вопрос: реально ли забрать этот объём в твоём городе?</h2><div class="sub">Посмотрим спрос, конкуренцию и текущий аккаунт Авито. Если рынок позволяет, скажем, какой бюджет нужен и на какой KPI можно ориентироваться.</div><button class="btn primary" id="openLead">Проверить объём по моему городу</button></div><div class="small">Расчёт ориентировочный. Основан на среднем объекте около 40 м², 20 рабочих днях в месяц, конверсии замер → заказ ~70% и обращение → замер ~33%.</div></section>
+        <section class="panel" id="result5"><div class="pill" id="cityPill5">5+ бригад</div><div class="resultTitle">Для команды 5+ бригад универсальная модель уже начинает врать.</div><div class="card"><div class="copy">На таком объёме загрузка сильнее зависит от логистики, среднего объёма объекта, географии и распределения монтажей. Поэтому здесь нужен индивидуальный расчёт по фактической мощности команды.</div><div class="actions"><button class="btn primary" id="openLead5">Посчитать загрузку индивидуально</button></div></div></section>
+        <section class="leadbox" id="leadBox"><div class="card"><div class="eyebrow">Следующий шаг</div><h2 style="font-size:30px;line-height:1.04;letter-spacing:-.04em;margin:12px 0 10px">Проверим, способен ли спрос в твоём городе закрыть этот объём.</h2><div class="sub">Оставь контакт и удобное время. На коротком звонке уточним ситуацию и посмотрим твой аккаунт.</div><div class="grid"><input class="input" id="name" type="text" placeholder="Имя" /><input class="input" id="phone" type="tel" placeholder="+7 999 000-00-00" /><input class="input" id="time" type="text" placeholder="Когда удобно созвониться?" /></div><button class="btn primary" id="submit" style="margin-top:12px">Выбрать время звонка</button><div class="success" id="success">Готово. На следующем шаге подключим реальную отправку заявки.</div></div></section>
       </div>
     </section>
   </main>
-
 <script>
-const targets={1:24,2:44,3:67,4:83};const state={teams:null,current:0,city:""};
-const names=["step1","step2","step3","loading","result","result5"];const panels=Object.fromEntries(names.map(x=>[x,document.getElementById(x)]));
+const targets={1:24,2:44,3:67,4:83};const state={teams:null,current:0,city:""};const names=["step1","step2","step3","loading","result","result5"];const panels=Object.fromEntries(names.map(x=>[x,document.getElementById(x)]));
 function show(n){Object.values(panels).forEach(p=>p.classList.remove("active"));panels[n].classList.add("active");window.scrollTo({top:0,behavior:"smooth"})}
 function prog(n){[1,2,3].forEach(i=>document.getElementById("p"+i).classList.toggle("done",i<=n))}
 document.querySelectorAll("[data-teams]").forEach(b=>b.onclick=()=>{state.teams=+b.dataset.teams;document.querySelectorAll("[data-teams]").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");prog(2);setTimeout(()=>show("step2"),120)});
-document.getElementById("next2").onclick=()=>{const v=+document.getElementById("current").value;if(!Number.isFinite(v)||v<0){alert("Укажи примерное количество монтажей в месяц");return}state.current=v;prog(3);show("step3")};
-document.getElementById("back1").onclick=()=>{prog(1);show("step1")};document.getElementById("back2").onclick=()=>{prog(2);show("step2")};
+document.getElementById("next2").onclick=()=>{const v=+document.getElementById("current").value;if(!Number.isFinite(v)||v<0){alert("Укажи примерное количество монтажей в месяц");return}state.current=v;prog(3);show("step3")};document.getElementById("back1").onclick=()=>{prog(1);show("step1")};document.getElementById("back2").onclick=()=>{prog(2);show("step2")};
 document.getElementById("calc").onclick=()=>{const c=document.getElementById("city").value.trim();if(!c){alert("Укажи город");return}state.city=c;show("loading");setTimeout(()=>{if(state.teams>=5){document.getElementById("cityPill5").textContent="Город: "+c+" • 5+ бригад";show("result5");return}const t=targets[state.teams],g=Math.max(0,t-state.current),m=Math.ceil(t/.70),l=Math.ceil(m/.33);document.getElementById("cityPill").textContent="Город: "+c;document.getElementById("orders").textContent=t;document.getElementById("measures").textContent=m;document.getElementById("leads").textContent=l;document.getElementById("leads2").textContent=l;document.getElementById("currentShow").textContent=state.current;document.getElementById("gap").textContent=g;document.getElementById("teamsLabel").textContent=state.teams===1?"1 бригады":state.teams+" бригад";document.getElementById("resultText").innerHTML=g>0?"Сейчас тебе не хватает примерно <b>"+g+" заказов в месяц</b> до стабильной загрузки. Чтобы выйти на нужный результат, нужен поток около <b>"+l+" обращений</b>, которые конвертируются примерно в <b>"+m+" замера</b> и дают около <b>"+t+" заказов</b>.":"По базовой модели ты уже находишься примерно на уровне стабильной загрузки. Следующий вопрос — насколько этот объём устойчив и не проседает ли загрузка по неделям.";show("result")},2200)};
-function lead(){const x=document.getElementById("leadBox");x.classList.add("active");setTimeout(()=>x.scrollIntoView({behavior:"smooth",block:"start"}),80)}document.getElementById("openLead").onclick=lead;document.getElementById("openLead5").onclick=lead;
-document.getElementById("submit").onclick=()=>{const n=document.getElementById("name").value.trim(),p=document.getElementById("phone").value.trim(),t=document.getElementById("time").value.trim();if(!n||!p||!t){alert("Заполни имя, телефон и удобное время");return}document.getElementById("success").style.display="block"};
+function lead(){const x=document.getElementById("leadBox");x.classList.add("active");setTimeout(()=>x.scrollIntoView({behavior:"smooth",block:"start"}),80)}document.getElementById("openLead").onclick=lead;document.getElementById("openLead5").onclick=lead;document.getElementById("submit").onclick=()=>{const n=document.getElementById("name").value.trim(),p=document.getElementById("phone").value.trim(),t=document.getElementById("time").value.trim();if(!n||!p||!t){alert("Заполни имя, телефон и удобное время");return}document.getElementById("success").style.display="block"};
 </script>
 </body>
 </html>
