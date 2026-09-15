@@ -109,6 +109,7 @@ document.getElementById('calc').onclick = () => {
     lostRevenueEl.textContent = '••• ••• ₽';
     document.getElementById('currentRevenue').textContent = currentRevenue.toLocaleString('ru-RU') + ' ₽';
     document.getElementById('teamsLabel').textContent = pluralTeams(state.teams);
+    document.getElementById('teamsGapLabel').textContent = pluralTeams(state.teams);
     document.getElementById('revenueReveal').classList.remove('revealed');
 
     const resultText = document.getElementById('resultText');
