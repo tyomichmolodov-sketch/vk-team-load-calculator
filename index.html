@@ -8,85 +8,188 @@
   <script src="https://unpkg.com/@vkontakte/vk-bridge@2.15.9/dist/browser.min.js"></script>
   <script>
     if (window.vkBridge) {
-      window.vkBridge.send('VKWebAppInit').catch(function (e) { console.error('VKWebAppInit failed', e); });
+      window.vkBridge.send('VKWebAppInit').catch(function (e) {
+        console.error('VKWebAppInit failed', e);
+      });
     }
   </script>
-  <style>
-    :root{--bg:#090b0f;--card:#151922;--text:#f7f9fc;--muted:#9ea7b3;--line:rgba(255,255,255,.08);--accent:#ff7a00;--accent2:#ff9a3c;--max:860px}
-    *{box-sizing:border-box}html,body{margin:0}body{min-height:100vh;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(900px 500px at 10% -10%,rgba(255,122,0,.16),transparent 35%),linear-gradient(180deg,#0a0d12,#090b0f);overflow-x:hidden}
-    .wrap{width:min(calc(100% - 18px),var(--max));margin:0 auto;padding:22px 0 54px}.eyebrow{display:inline-flex;align-items:center;gap:9px;color:var(--accent2);font-size:13px;font-weight:900;letter-spacing:.09em;text-transform:uppercase}.eyebrow:before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
-    h1,h2,p{margin-top:0}h1{font-size:clamp(36px,7vw,64px);line-height:.97;letter-spacing:-.055em;margin:16px 0 16px;max-width:780px}.lead{font-size:clamp(18px,2.5vw,22px);line-height:1.45;color:#d7dce3;max-width:760px}
-    .shell{margin-top:22px;border:1px solid var(--line);border-radius:28px;background:linear-gradient(180deg,rgba(21,25,33,.9),rgba(11,14,19,.98));overflow:hidden;box-shadow:0 22px 70px rgba(0,0,0,.38)}
-    .shelltop{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;padding:17px 20px;border-bottom:1px solid var(--line)}.brand{font-weight:900;letter-spacing:-.02em}.brand small{display:block;color:var(--muted);font-size:12px;margin-top:3px}.note{color:var(--muted);font-size:12px;text-align:right}
-    .progress{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:16px 20px 0}.bar{height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}.bar.done{background:linear-gradient(90deg,var(--accent),var(--accent2))}
-    .content{padding:20px}.panel{display:none}.panel.active{display:block}.q{font-size:29px;line-height:1.05;font-weight:900;letter-spacing:-.035em;margin-bottom:10px}.sub{color:var(--muted);line-height:1.45;margin-bottom:18px}.grid{display:grid;gap:11px}
-    .option,.btn{width:100%;min-height:56px;border-radius:16px;font:inherit;font-weight:850;cursor:pointer;transition:.18s ease}.option{border:1px solid var(--line);background:rgba(255,255,255,.02);color:#fff;text-align:left;padding:0 18px}.option:hover,.option.selected{border-color:rgba(255,122,0,.58);background:rgba(255,122,0,.09);transform:translateY(-1px)}
-    .input{width:100%;min-height:60px;border-radius:16px;border:1px solid var(--line);background:rgba(0,0,0,.2);color:#fff;padding:0 16px;font:inherit;font-size:18px;outline:none}.input:focus{border-color:rgba(255,122,0,.6);box-shadow:0 0 0 4px rgba(255,122,0,.08)}
-    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.btn{border:none;padding:0 18px}.btn:disabled{opacity:.55;cursor:default}.primary{background:linear-gradient(135deg,var(--accent),#ff9c40);color:#fff;box-shadow:0 14px 28px rgba(255,122,0,.16)}.ghost{background:transparent;color:#fff;border:1px solid var(--line)}
-    .loader{text-align:center;padding:24px 10px 34px}.loaderBig{font-size:clamp(34px,6vw,56px);line-height:1;letter-spacing:-.055em;font-weight:950;margin:14px auto 0;max-width:650px;animation:fade .5s ease forwards}.loaderBig span{color:var(--accent)}@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}.spinner{width:66px;height:66px;margin:22px auto 0;border:4px solid rgba(255,255,255,.1);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
-    .resultTitle{font-size:clamp(34px,6vw,54px);font-weight:950;line-height:.97;letter-spacing:-.055em;margin-bottom:14px;max-width:620px}.pill{display:inline-block;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,122,0,.26);background:rgba(255,122,0,.08);color:#ffe1c4;font-weight:800;font-size:13px;margin-bottom:14px}
-    .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:13px}.card{border:1px solid var(--line);background:rgba(255,255,255,.025);border-radius:22px;padding:20px}.big{font-size:clamp(58px,10vw,92px);font-weight:950;line-height:.9;letter-spacing:-.075em;color:var(--accent);margin-bottom:10px}.copy{font-size:19px;line-height:1.38}.stack{display:grid;gap:13px}.stack b{display:block;font-size:34px;letter-spacing:-.045em;line-height:1;margin-bottom:6px}.stack span{color:var(--muted);font-size:14px;line-height:1.4}
-    .path{margin-top:16px;border:1px dashed rgba(255,255,255,.12);border-radius:20px;padding:18px}.pathgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}.pathitem{padding:15px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.02)}.pathitem b{display:block;font-size:28px;color:var(--accent);margin-bottom:5px}.pathitem span{color:var(--muted);font-size:13px;line-height:1.4}
-    .resultCopy{font-size:18px;line-height:1.55;color:#e6eaf0;margin:17px 0}.cta{border:1px solid rgba(255,122,0,.24);background:linear-gradient(135deg,rgba(255,122,0,.1),rgba(255,122,0,.03));border-radius:22px;padding:20px}.cta h2{font-size:27px;line-height:1.05;letter-spacing:-.04em;margin-bottom:8px}.small{font-size:12px;color:var(--muted);line-height:1.45;margin-top:14px}
-    .leadbox{display:none;margin-top:18px}.leadbox.active{display:block}.success{display:none;margin-top:12px;padding:13px 14px;border:1px solid rgba(79,213,123,.25);background:rgba(79,213,123,.08);border-radius:14px;color:#c6f5d5;font-size:14px}.error{display:none;margin-top:12px;padding:13px 14px;border:1px solid rgba(255,91,91,.25);background:rgba(255,91,91,.08);border-radius:14px;color:#ffd0d0;font-size:14px}
-    @media(max-width:700px){.hero,.pathgrid{grid-template-columns:1fr}.shelltop{display:block}.note{text-align:left;margin-top:8px}}@media(max-width:560px){.content{padding:17px}.actions{display:grid}.btn{width:100%}.q{font-size:25px}}
-  </style>
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
   <main class="wrap">
-    <div class="eyebrow">Мини-расчёт загрузки</div>
-    <h1>Сколько заказов тебе не хватает до стабильной загрузки бригад?</h1>
-    <p class="lead">За 30 секунд покажем, какой поток заказов, замеров и обращений вообще нужен, чтобы бригады не сидели без работы.</p>
+    <div class="eyebrow">Реальная загрузка бригад под твои условия</div>
+    <h1>Сколько заказов тебе <span class="accentMark">не хватает</span> до <span class="accentWord">стабильной</span> загрузки бригад?</h1>
+    <p class="lead"><span class="timeBadge">За 30 секунд</span> покажем, какой поток заказов, замеров и обращений нужен, чтобы твоя бригада не убежала к конкурентам от простоя.</p>
+
     <section class="shell">
-      <div class="shelltop"><div class="brand">Расчёт загрузки бригад<small>ветка A • VK Mini App</small></div><div class="note">Средний объект ~40 м²<br>20 рабочих дней в месяц</div></div>
-      <div class="progress"><div class="bar done" id="p1"></div><div class="bar" id="p2"></div><div class="bar" id="p3"></div></div>
+      <div class="shelltop">
+        <div class="brand">Расчёт загрузки бригад</div>
+        <div class="note">Средний объект ~40 м²<br>20 рабочих дней в месяц</div>
+      </div>
+
+      <div class="progress">
+        <div class="bar done" id="p1"></div>
+        <div class="bar" id="p2"></div>
+        <div class="bar" id="p3"></div>
+      </div>
+
       <div class="content">
-        <section class="panel active" id="step1"><div class="q">Сколько у тебя бригад?</div><div class="sub">По количеству бригад считаем ориентир стабильной загрузки.</div><div class="grid"><button class="option" data-teams="1">1 бригада</button><button class="option" data-teams="2">2 бригады</button><button class="option" data-teams="3">3 бригады</button><button class="option" data-teams="4">4 бригады</button><button class="option" data-teams="5">5+ бригад</button></div></section>
-        <section class="panel" id="step2"><div class="q">Сколько монтажей делаете сейчас в среднем за месяц?</div><div class="sub">Можно примерно. Нам важен порядок цифр, а не точность до одного объекта.</div><input class="input" id="current" type="number" min="0" max="300" inputmode="numeric" placeholder="Например, 28" /><div class="actions"><button class="btn primary" id="next2">Дальше</button><button class="btn ghost" id="back1">Назад</button></div></section>
-        <section class="panel" id="step3"><div class="q">В каком городе работаешь?</div><div class="sub">Это понадобится на следующем шаге, чтобы понять, способен ли местный спрос дать нужный объём.</div><input class="input" id="city" type="text" placeholder="Например, Воронеж" /><div class="actions"><button class="btn primary" id="calc">Показать расчёт</button><button class="btn ghost" id="back2">Назад</button></div></section>
-        <section class="panel" id="loading"><div class="loader"><div class="eyebrow">Считаем ориентир</div><div class="loaderBig">Тебе нужны <span>клиенты, которые платят</span>.</div><div class="spinner"></div><p class="sub" style="margin-top:18px">Считаем нужный объём заказов, замеров и обращений.</p></div></section>
-        <section class="panel" id="result"><div class="pill" id="cityPill">Город: —</div><div class="resultTitle">Вот какой объём нужен, чтобы бригады не жили от случая к случаю.</div><div class="hero"><div class="card"><div class="big" id="orders">44</div><div class="copy">заказа в месяц — ориентир стабильной загрузки для <span id="teamsLabel">2 бригад</span>.</div></div><div class="stack"><div class="card"><b id="measures">63</b><span>замера примерно нужно в месяц</span></div><div class="card"><b id="leads">191</b><span>обращение примерно нужно в месяц</span></div></div></div><div class="path"><div class="pathgrid"><div class="pathitem"><b id="currentShow">28</b><span>монтажей делаешь сейчас</span></div><div class="pathitem"><b id="gap">16</b><span>заказов сейчас не хватает до стабильной загрузки</span></div><div class="pathitem"><b id="leads2">191</b><span>обращений нужно собирать в месяц</span></div></div></div><div class="resultCopy" id="resultText"></div><div class="cta"><h2>Теперь главный вопрос: реально ли забрать этот объём в твоём городе?</h2><div class="sub">Посмотрим спрос, конкуренцию и текущий аккаунт Авито. Если рынок позволяет, скажем, какой бюджет нужен и на какой KPI можно ориентироваться.</div><button class="btn primary" id="openLead">Проверить объём по моему городу</button></div><div class="small">Расчёт ориентировочный. Основан на среднем объекте около 40 м², 20 рабочих днях в месяц, конверсии замер → заказ ~70% и обращение → замер ~33%.</div></section>
-        <section class="panel" id="result5"><div class="pill" id="cityPill5">5+ бригад</div><div class="resultTitle">Для команды 5+ бригад универсальная модель уже начинает врать.</div><div class="card"><div class="copy">На таком объёме загрузка сильнее зависит от логистики, среднего объёма объекта, географии и распределения монтажей. Поэтому здесь нужен индивидуальный расчёт по фактической мощности команды.</div><div class="actions"><button class="btn primary" id="openLead5">Посчитать загрузку индивидуально</button></div></div></section>
-        <section class="leadbox" id="leadBox"><div class="card"><div class="eyebrow">Следующий шаг</div><h2 style="font-size:30px;line-height:1.04;letter-spacing:-.04em;margin:12px 0 10px">Проверим, способен ли спрос в твоём городе закрыть этот объём.</h2><div class="sub">Оставь контакт и удобное время. На коротком звонке уточним ситуацию и посмотрим твой аккаунт.</div><div class="grid"><input class="input" id="name" type="text" placeholder="Имя" /><input class="input" id="phone" type="tel" placeholder="+7 999 000-00-00" /><input class="input" id="time" type="text" placeholder="Когда удобно созвониться?" /></div><button class="btn primary" id="submit" style="margin-top:12px">Отправить заявку</button><div class="success" id="success">Заявка отправлена. Свяжемся с тобой в указанное время.</div><div class="error" id="error">Не удалось отправить заявку. Попробуй ещё раз.</div></div></section>
+        <section class="panel active" id="step1">
+          <div class="q">Сколько у тебя бригад?</div>
+          <div class="sub">По количеству бригад считаем ориентир стабильной загрузки.</div>
+          <div class="grid">
+            <button class="option" data-teams="1">1 бригада</button>
+            <button class="option" data-teams="2">2 бригады</button>
+            <button class="option" data-teams="3">3 бригады</button>
+            <button class="option" data-teams="4">4 бригады</button>
+            <button class="option" data-teams="5">5+ бригад</button>
+          </div>
+        </section>
+
+        <section class="panel" id="step2">
+          <div class="q">Сколько объектов делаете сейчас в среднем за месяц?</div>
+          <div class="sub">Можно примерно. Нам важен порядок цифр, а не точность до одного объекта.</div>
+          <input class="input" id="current" type="number" min="0" max="300" inputmode="numeric" placeholder="Например, 28" />
+          <div class="actions">
+            <button class="btn primary" id="next2">Дальше</button>
+            <button class="btn ghost" id="back1">Назад</button>
+          </div>
+        </section>
+
+        <section class="panel" id="step3">
+          <div class="q">Введите город, где оказываете услугу</div>
+          <div class="sub">Нужен основной город, чтобы дальше оценить спрос и реальную нагрузку под твои возможности.</div>
+          <input class="input" id="city" type="text" inputmode="text" autocomplete="address-level2" placeholder="Например, Воронеж" />
+          <div class="actions">
+            <button class="btn primary" id="calc">Показать расчёт</button>
+            <button class="btn ghost" id="back2">Назад</button>
+          </div>
+        </section>
+
+        <section class="panel" id="loading">
+          <div class="loader">
+            <div class="eyebrow">Считаем ориентир</div>
+            <div class="loaderBig">Тебе нужны <span>клиенты, которые платят</span>.</div>
+            <div class="spinner"></div>
+            <p class="sub" style="margin-top:18px">Считаем нужный объём заказов, замеров, обращений и просмотров.</p>
+          </div>
+        </section>
+
+        <section class="panel" id="result">
+          <div class="center">
+            <div class="pill" id="cityPill">Город: —</div>
+            <div class="resultTitle">Вот какой объём нужен, чтобы бригады <span class="accent">не жили от случая к случаю</span></div>
+            <div class="arrow">↓</div>
+          </div>
+
+          <div class="metricsGrid">
+            <div class="metricCard primaryMetric reveal">
+              <div class="metricValue" id="orders">44</div>
+              <div class="metricLabel">объекта в месяц</div>
+              <div class="metricSub">ориентир стабильной загрузки для <span id="teamsLabel">2 бригад</span></div>
+            </div>
+
+            <div class="metricCard primaryMetric reveal">
+              <div class="metricValue" id="gap">16</div>
+              <div class="metricLabel">объектов в месяц</div>
+              <div class="metricSub">сейчас не хватает до стабильной загрузки</div>
+            </div>
+          </div>
+
+          <div class="funnelGrid">
+            <div class="metricCard reveal">
+              <div class="metricValue" id="measures">63</div>
+              <div class="metricLabel">замера в месяц</div>
+              <div class="metricSub">примерно столько нужно провести, чтобы держать нужный объём объектов</div>
+            </div>
+
+            <div class="metricCard reveal">
+              <div class="metricValue" id="leads">191</div>
+              <div class="metricLabel">обращение в месяц</div>
+              <div class="metricSub">примерно такой входящий поток нужен до этапа замера</div>
+            </div>
+
+            <div class="metricCard reveal">
+              <div class="metricValue" id="views">1318</div>
+              <div class="metricLabel">просмотров в месяц</div>
+              <div class="metricSub">при средней конверсии просмотра в обращение 14,5%</div>
+            </div>
+          </div>
+
+          <div class="revenueCard reveal">
+            <div class="revenueEyebrow">Это примерно</div>
+            <div class="revenueReveal" id="revenueReveal" role="button" tabindex="0" aria-label="Показать потерянную выручку">
+              <div class="revenueValue" id="lostRevenue">400 000 ₽</div>
+              <div class="revenueCover">
+                <span class="shard" style="--r:-28deg;--x:-115px;--y:-24px"></span>
+                <span class="shard" style="--r:18deg;--x:-58px;--y:22px"></span>
+                <span class="shard" style="--r:44deg;--x:8px;--y:-28px"></span>
+                <span class="shard" style="--r:-12deg;--x:72px;--y:20px"></span>
+                <span class="shard" style="--r:31deg;--x:128px;--y:-18px"></span>
+                <span class="shard" style="--r:8deg;--x:-8px;--y:30px"></span>
+                <span class="revenueCoverText">Нажми, чтобы увидеть сумму</span>
+              </div>
+            </div>
+            <div class="revenueText">потерянной выручки уже сейчас</div>
+            <div class="revenueNote">при среднем чеке 25 000 ₽ за объект</div>
+          </div>
+
+          <div class="metricsGrid" style="margin-top:14px">
+            <div class="metricCard reveal">
+              <div class="metricValue" id="currentShow">28</div>
+              <div class="metricLabel">объектов в месяц</div>
+              <div class="metricSub">делаете сейчас в среднем</div>
+            </div>
+            <div class="metricCard reveal">
+              <div class="metricValue" id="currentRevenue">700 000 ₽</div>
+              <div class="metricLabel">текущая выручка</div>
+              <div class="metricSub">ориентир при среднем чеке 25 000 ₽</div>
+            </div>
+          </div>
+
+          <div class="summaryCard reveal">
+            <p class="summaryText" id="resultText"></p>
+          </div>
+
+          <div class="cta reveal">
+            <h2><span class="accentHead">Теперь главный вопрос:</span><br>реально ли забрать этот объём в твоём городе?</h2>
+            <div class="sub">Посмотрим спрос, конкуренцию и реальную нагрузку конкретно под твои возможности. Если рынок позволяет, скажем, какой для этого нужен бюджет, сколько будет стоить заявка и сколько будет стоить клиент, который готов платить.</div>
+            <button class="btn primary" id="openLead">Проверить объём по моему городу</button>
+          </div>
+
+          <div class="small">Расчёт основан на средних показателях наших клиентов при объекте от 40 м² и 20 рабочих днях в месяц.</div>
+        </section>
+
+        <section class="panel" id="result5">
+          <div class="center">
+            <div class="pill" id="cityPill5">5+ бригад</div>
+            <div class="resultTitle">Для команды 5+ бригад универсальная модель уже начинает врать.</div>
+          </div>
+          <div class="metricCard" style="margin-top:18px">
+            <div class="metricSub" style="font-size:18px;color:#f3f6f8">На таком объёме загрузка сильнее зависит от логистики, среднего объёма объекта, географии и распределения монтажей. Поэтому здесь нужен индивидуальный расчёт по фактической мощности команды.</div>
+            <div class="actions"><button class="btn primary" id="openLead5">Посчитать загрузку индивидуально</button></div>
+          </div>
+        </section>
+
+        <section class="leadbox" id="leadBox">
+          <div class="metricCard" style="margin-top:18px">
+            <div class="eyebrow">Следующий шаг</div>
+            <h2 style="font-size:32px;line-height:1.04;letter-spacing:-.04em;margin:12px 0 10px">Проверим, способен ли спрос в твоём городе закрыть этот объём.</h2>
+            <div class="sub">Оставь контакт и напиши удобное время. На коротком звонке уточним ситуацию и расскажем, что мы сможем сделать под твои условия работы.</div>
+            <div class="grid">
+              <input class="input" id="name" type="text" placeholder="Имя" />
+              <input class="input" id="phone" type="tel" placeholder="+7 999 000-00-00" />
+              <input class="input" id="time" type="text" placeholder="Когда удобно созвониться?" />
+            </div>
+            <button class="btn primary" id="submit" style="margin-top:12px">Отправить заявку</button>
+            <div class="success" id="success">Заявка отправлена. Свяжемся с тобой в указанное время.</div>
+            <div class="error" id="error">Не удалось отправить заявку. Попробуй ещё раз.</div>
+          </div>
+        </section>
       </div>
     </section>
   </main>
-<script>
-const WEBHOOK='https://script.google.com/macros/s/AKfycbzJ0Jl_7sx_Dtp6Aana2vHrhoC0VTj5Jtod4o3Mz-nkHW7DYguFScr27H4OenUdJ5mtNA/exec';
-const targets={1:24,2:44,3:67,4:83};
-function readEntryParams(){
-  const merged=new URLSearchParams(window.location.search);
-  const hash=window.location.hash.startsWith('#')?window.location.hash.slice(1):window.location.hash;
-  const hashParams=new URLSearchParams(hash);
-  hashParams.forEach((v,k)=>{if(!merged.has(k))merged.set(k,v)});
-  const obj={};merged.forEach((v,k)=>obj[k]=v);
-  return {
-    campaign: merged.get('campaign')||merged.get('utm_campaign')||'',
-    ad: merged.get('ad')||merged.get('utm_content')||'',
-    source: merged.get('src')||merged.get('utm_source')||'VK Mini App / Ветка A',
-    params: JSON.stringify(obj),
-    entryUrl: window.location.href
-  };
-}
-const tracking=readEntryParams();
-const state={teams:null,current:0,city:""};const names=["step1","step2","step3","loading","result","result5"];const panels=Object.fromEntries(names.map(x=>[x,document.getElementById(x)]));
-function show(n){Object.values(panels).forEach(p=>p.classList.remove("active"));panels[n].classList.add("active");window.scrollTo({top:0,behavior:"smooth"})}
-function prog(n){[1,2,3].forEach(i=>document.getElementById("p"+i).classList.toggle("done",i<=n))}
-document.querySelectorAll("[data-teams]").forEach(b=>b.onclick=()=>{state.teams=+b.dataset.teams;document.querySelectorAll("[data-teams]").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");prog(2);setTimeout(()=>show("step2"),120)});
-document.getElementById("next2").onclick=()=>{const v=+document.getElementById("current").value;if(!Number.isFinite(v)||v<0){alert("Укажи примерное количество монтажей в месяц");return}state.current=v;prog(3);show("step3")};
-document.getElementById("back1").onclick=()=>{prog(1);show("step1")};document.getElementById("back2").onclick=()=>{prog(2);show("step2")};
-document.getElementById("calc").onclick=()=>{const c=document.getElementById("city").value.trim();if(!c){alert("Укажи город");return}state.city=c;show("loading");setTimeout(()=>{if(state.teams>=5){document.getElementById("cityPill5").textContent="Город: "+c+" • 5+ бригад";show("result5");return}const t=targets[state.teams],g=Math.max(0,t-state.current),m=Math.ceil(t/.70),l=Math.ceil(m/.33);document.getElementById("cityPill").textContent="Город: "+c;document.getElementById("orders").textContent=t;document.getElementById("measures").textContent=m;document.getElementById("leads").textContent=l;document.getElementById("leads2").textContent=l;document.getElementById("currentShow").textContent=state.current;document.getElementById("gap").textContent=g;document.getElementById("teamsLabel").textContent=state.teams===1?"1 бригады":state.teams+" бригад";document.getElementById("resultText").innerHTML=g>0?"Сейчас тебе не хватает примерно <b>"+g+" заказов в месяц</b> до стабильной загрузки. Чтобы выйти на нужный результат, нужен поток около <b>"+l+" обращений</b>, которые конвертируются примерно в <b>"+m+" замера</b> и дают около <b>"+t+" заказов</b>.":"По базовой модели ты уже находишься примерно на уровне стабильной загрузки. Следующий вопрос — насколько этот объём устойчив и не проседает ли загрузка по неделям.";show("result")},2200)};
-function lead(){const x=document.getElementById("leadBox");x.classList.add("active");setTimeout(()=>x.scrollIntoView({behavior:"smooth",block:"start"}),80)}document.getElementById("openLead").onclick=lead;document.getElementById("openLead5").onclick=lead;
-document.getElementById("submit").onclick=async()=>{
-  const n=document.getElementById("name").value.trim(),p=document.getElementById("phone").value.trim(),t=document.getElementById("time").value.trim();
-  if(!n||!p||!t){alert("Заполни имя, телефон и удобное время");return}
-  const btn=document.getElementById("submit"),ok=document.getElementById("success"),err=document.getElementById("error");
-  btn.disabled=true;btn.textContent="Отправляем...";ok.style.display="none";err.style.display="none";
-  let targetOrders='',orderGap='',requiredMeasures='',requiredLeads='';
-  if(state.teams<5){targetOrders=targets[state.teams];orderGap=Math.max(0,targetOrders-state.current);requiredMeasures=Math.ceil(targetOrders/.70);requiredLeads=Math.ceil(requiredMeasures/.33)}
-  const payload={name:n,phone:p,city:state.city,teams:state.teams,currentOrders:state.current,targetOrders,orderGap,requiredMeasures,requiredLeads,callTime:t,source:tracking.source,campaign:tracking.campaign,ad:tracking.ad,entryParams:tracking.params,entryUrl:tracking.entryUrl};
-  try{await fetch(WEBHOOK,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});ok.style.display='block';btn.textContent='Заявка отправлена'}catch(e){console.error(e);err.style.display='block';btn.disabled=false;btn.textContent='Отправить заявку'}
-};
-</script>
+
+<script src="./app.js"></script>
 </body>
 </html>
