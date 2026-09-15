@@ -8,9 +8,7 @@
   <script src="https://unpkg.com/@vkontakte/vk-bridge@2.15.9/dist/browser.min.js"></script>
   <script>
     if (window.vkBridge) {
-      window.vkBridge.send('VKWebAppInit').catch(function (e) {
-        console.error('VKWebAppInit failed', e);
-      });
+      window.vkBridge.send('VKWebAppInit').catch(function (e) { console.error('VKWebAppInit failed', e); });
     }
   </script>
   <style>
@@ -55,7 +53,23 @@
   </main>
 <script>
 const WEBHOOK='https://script.google.com/macros/s/AKfycbzJ0Jl_7sx_Dtp6Aana2vHrhoC0VTj5Jtod4o3Mz-nkHW7DYguFScr27H4OenUdJ5mtNA/exec';
-const targets={1:24,2:44,3:67,4:83};const state={teams:null,current:0,city:""};const names=["step1","step2","step3","loading","result","result5"];const panels=Object.fromEntries(names.map(x=>[x,document.getElementById(x)]));
+const targets={1:24,2:44,3:67,4:83};
+function readEntryParams(){
+  const merged=new URLSearchParams(window.location.search);
+  const hash=window.location.hash.startsWith('#')?window.location.hash.slice(1):window.location.hash;
+  const hashParams=new URLSearchParams(hash);
+  hashParams.forEach((v,k)=>{if(!merged.has(k))merged.set(k,v)});
+  const obj={};merged.forEach((v,k)=>obj[k]=v);
+  return {
+    campaign: merged.get('campaign')||merged.get('utm_campaign')||'',
+    ad: merged.get('ad')||merged.get('utm_content')||'',
+    source: merged.get('src')||merged.get('utm_source')||'VK Mini App / Ветка A',
+    params: JSON.stringify(obj),
+    entryUrl: window.location.href
+  };
+}
+const tracking=readEntryParams();
+const state={teams:null,current:0,city:""};const names=["step1","step2","step3","loading","result","result5"];const panels=Object.fromEntries(names.map(x=>[x,document.getElementById(x)]));
 function show(n){Object.values(panels).forEach(p=>p.classList.remove("active"));panels[n].classList.add("active");window.scrollTo({top:0,behavior:"smooth"})}
 function prog(n){[1,2,3].forEach(i=>document.getElementById("p"+i).classList.toggle("done",i<=n))}
 document.querySelectorAll("[data-teams]").forEach(b=>b.onclick=()=>{state.teams=+b.dataset.teams;document.querySelectorAll("[data-teams]").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");prog(2);setTimeout(()=>show("step2"),120)});
@@ -70,11 +84,8 @@ document.getElementById("submit").onclick=async()=>{
   btn.disabled=true;btn.textContent="Отправляем...";ok.style.display="none";err.style.display="none";
   let targetOrders='',orderGap='',requiredMeasures='',requiredLeads='';
   if(state.teams<5){targetOrders=targets[state.teams];orderGap=Math.max(0,targetOrders-state.current);requiredMeasures=Math.ceil(targetOrders/.70);requiredLeads=Math.ceil(requiredMeasures/.33)}
-  const payload={name:n,phone:p,city:state.city,teams:state.teams,currentOrders:state.current,targetOrders,orderGap,requiredMeasures,requiredLeads,callTime:t,source:'VK Mini App / Ветка A'};
-  try{
-    await fetch(WEBHOOK,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-    ok.style.display='block';btn.textContent='Заявка отправлена';
-  }catch(e){console.error(e);err.style.display='block';btn.disabled=false;btn.textContent='Отправить заявку'}
+  const payload={name:n,phone:p,city:state.city,teams:state.teams,currentOrders:state.current,targetOrders,orderGap,requiredMeasures,requiredLeads,callTime:t,source:tracking.source,campaign:tracking.campaign,ad:tracking.ad,entryParams:tracking.params,entryUrl:tracking.entryUrl};
+  try{await fetch(WEBHOOK,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});ok.style.display='block';btn.textContent='Заявка отправлена'}catch(e){console.error(e);err.style.display='block';btn.disabled=false;btn.textContent='Отправить заявку'}
 };
 </script>
 </body>
