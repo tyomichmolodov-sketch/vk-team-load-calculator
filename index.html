@@ -143,6 +143,34 @@
     .success{display:none;margin-top:12px;padding:13px 14px;border:1px solid rgba(79,213,123,.25);background:rgba(79,213,123,.08);border-radius:14px;color:var(--success);font-size:14px}
     .error{display:none;margin-top:12px;padding:13px 14px;border:1px solid rgba(255,91,91,.25);background:rgba(255,91,91,.08);border-radius:14px;color:var(--danger);font-size:14px}
 
+    .dateTrigger{display:flex;align-items:center;justify-content:space-between;text-align:left;cursor:pointer}
+    .dateTrigger.hasValue{border-color:rgba(255,122,0,.48);color:#fff}
+    .dateIcon{color:var(--accent);font-size:20px}
+    .dateModal{position:fixed;inset:0;z-index:9999;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.68);backdrop-filter:blur(5px);padding:16px}
+    .dateModal.active{display:flex}
+    .dateSheet{width:min(100%,520px);background:#121720;border:1px solid var(--line);border-radius:26px;padding:18px;box-shadow:0 28px 90px rgba(0,0,0,.55);animation:sheetIn .22s ease}
+    @keyframes sheetIn{from{transform:translateY(20px);opacity:.5}to{transform:none;opacity:1}}
+    .dateSheetTop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .dateSheetTitle{font-size:22px;font-weight:900;letter-spacing:-.03em}
+    .closeDate{width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:#fff;font-size:24px;cursor:pointer}
+    .calendarHead{display:flex;align-items:center;justify-content:space-between;margin:8px 0 12px}
+    .monthLabel{font-weight:900;text-transform:capitalize}
+    .monthNav{display:flex;gap:8px}
+    .monthBtn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:#fff;font-size:20px;cursor:pointer}
+    .monthBtn:disabled{opacity:.3;cursor:default}
+    .weekdays,.calendarGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+    .weekdays div{text-align:center;color:var(--muted);font-size:11px;font-weight:800;padding:4px 0}
+    .dayBtn{aspect-ratio:1;border:1px solid transparent;border-radius:12px;background:rgba(255,255,255,.025);color:#fff;font-weight:800;cursor:pointer}
+    .dayBtn:hover{border-color:rgba(255,122,0,.35)}
+    .dayBtn.selected{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+    .dayBtn.today{border-color:rgba(255,122,0,.5)}
+    .dayBtn:disabled{opacity:.2;cursor:default}
+    .timeBlock{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+    .timeLabel{font-size:13px;color:var(--muted);margin-bottom:8px}
+    .timePickerInput{width:100%;height:56px;border-radius:16px;border:1px solid var(--line);background:rgba(0,0,0,.2);color:#fff;padding:0 14px;font:inherit;font-size:18px;color-scheme:dark}
+    .dateConfirm{margin-top:14px;width:100%}
+    .dateHint{font-size:12px;color:var(--muted);margin-top:9px;text-align:center}
+
     @media(max-width:760px){
       .metricsGrid,.funnelGrid{grid-template-columns:1fr}
       .shelltop{display:block}
@@ -322,7 +350,7 @@
             <div class="grid">
               <input class="input" id="name" type="text" placeholder="Имя" />
               <input class="input" id="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="18" placeholder="+7 (999) 000-00-00" />
-              <input class="input" id="time" type="datetime-local" />
+              <button class="input dateTrigger" id="openDatePicker" type="button"><span id="callTimeDisplay">Выбрать дату и время</span><span class="dateIcon">▣</span></button><input id="time" type="hidden" />
             </div>
             <label class="privacyConsent" style="display:flex;align-items:flex-start;gap:10px;margin-top:14px;color:var(--muted);font-size:13px;line-height:1.45;cursor:pointer">
               <input id="privacyConsent" type="checkbox" style="margin-top:3px;accent-color:var(--accent)">
@@ -336,6 +364,32 @@
       </div>
     </section>
   </main>
+
+  <div class="dateModal" id="dateModal" aria-hidden="true">
+    <div class="dateSheet" role="dialog" aria-modal="true" aria-labelledby="dateSheetTitle">
+      <div class="dateSheetTop">
+        <div class="dateSheetTitle" id="dateSheetTitle">Когда удобно созвониться?</div>
+        <button class="closeDate" id="closeDatePicker" type="button" aria-label="Закрыть">×</button>
+      </div>
+      <div class="calendarHead">
+        <div class="monthLabel" id="monthLabel"></div>
+        <div class="monthNav">
+          <button class="monthBtn" id="prevMonth" type="button" aria-label="Предыдущий месяц">‹</button>
+          <button class="monthBtn" id="nextMonth" type="button" aria-label="Следующий месяц">›</button>
+        </div>
+      </div>
+      <div class="weekdays">
+        <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+      </div>
+      <div class="calendarGrid" id="calendarGrid"></div>
+      <div class="timeBlock">
+        <div class="timeLabel">Выберите время</div>
+        <input class="timePickerInput" id="callTimePicker" type="time" step="900" />
+      </div>
+      <button class="btn primary dateConfirm" id="confirmDateTime" type="button">Выбрать</button>
+      <div class="dateHint">Дата и время сохранятся в заявке без «сегодня» и «завтра».</div>
+    </div>
+  </div>
 
 <script>
 const WEBHOOK='https://script.google.com/macros/s/AKfycbzJ0Jl_7sx_Dtp6Aana2vHrhoC0VTj5Jtod4o3Mz-nkHW7DYguFScr27H4OenUdJ5mtNA/exec';
@@ -402,13 +456,101 @@ phoneInput.addEventListener('input', () => {
 });
 
 const timeInput = document.getElementById('time');
-function setMinCallTime(){
-  const now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  timeInput.min = now.toISOString().slice(0,16);
+const openDatePicker = document.getElementById('openDatePicker');
+const closeDatePicker = document.getElementById('closeDatePicker');
+const dateModal = document.getElementById('dateModal');
+const calendarGrid = document.getElementById('calendarGrid');
+const monthLabel = document.getElementById('monthLabel');
+const prevMonth = document.getElementById('prevMonth');
+const nextMonth = document.getElementById('nextMonth');
+const callTimePicker = document.getElementById('callTimePicker');
+const callTimeDisplay = document.getElementById('callTimeDisplay');
+const confirmDateTime = document.getElementById('confirmDateTime');
+
+const todayStart = new Date();
+todayStart.setHours(0,0,0,0);
+let calendarCursor = new Date(todayStart.getFullYear(), todayStart.getMonth(), 1);
+let selectedDate = null;
+
+function sameDay(a,b){
+  return a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
 }
-setMinCallTime();
-timeInput.addEventListener('focus', setMinCallTime);
+function renderCalendar(){
+  const y=calendarCursor.getFullYear();
+  const m=calendarCursor.getMonth();
+  monthLabel.textContent = calendarCursor.toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
+  calendarGrid.innerHTML='';
+  const firstDay=(new Date(y,m,1).getDay()+6)%7;
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  for(let i=0;i<firstDay;i++){
+    calendarGrid.appendChild(document.createElement('div'));
+  }
+  for(let d=1;d<=daysInMonth;d++){
+    const date=new Date(y,m,d);
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='dayBtn';
+    btn.textContent=d;
+    if(sameDay(date,todayStart)) btn.classList.add('today');
+    if(sameDay(date,selectedDate)) btn.classList.add('selected');
+    if(date<todayStart) btn.disabled=true;
+    btn.onclick=()=>{
+      selectedDate=date;
+      renderCalendar();
+    };
+    calendarGrid.appendChild(btn);
+  }
+  const currentMonthStart=new Date(todayStart.getFullYear(),todayStart.getMonth(),1);
+  prevMonth.disabled = calendarCursor <= currentMonthStart;
+}
+
+function openCalendar(){
+  if(!selectedDate) selectedDate=new Date(todayStart);
+  calendarCursor=new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1);
+  if(!callTimePicker.value){
+    const now=new Date();
+    now.setMinutes(Math.ceil(now.getMinutes()/15)*15,0,0);
+    callTimePicker.value=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  }
+  renderCalendar();
+  dateModal.classList.add('active');
+  dateModal.setAttribute('aria-hidden','false');
+}
+function closeCalendar(){
+  dateModal.classList.remove('active');
+  dateModal.setAttribute('aria-hidden','true');
+}
+openDatePicker.onclick=openCalendar;
+closeDatePicker.onclick=closeCalendar;
+dateModal.addEventListener('click',(e)=>{ if(e.target===dateModal) closeCalendar(); });
+prevMonth.onclick=()=>{ calendarCursor=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()-1,1); renderCalendar(); };
+nextMonth.onclick=()=>{ calendarCursor=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()+1,1); renderCalendar(); };
+
+confirmDateTime.onclick=()=>{
+  if(!selectedDate){
+    alert('Выбери дату');
+    return;
+  }
+  if(!callTimePicker.value){
+    alert('Выбери время');
+    return;
+  }
+  const [hh,mm]=callTimePicker.value.split(':').map(Number);
+  const chosen=new Date(selectedDate.getFullYear(),selectedDate.getMonth(),selectedDate.getDate(),hh,mm,0,0);
+  if(chosen.getTime()<Date.now()){
+    alert('Выбери время позже текущего');
+    return;
+  }
+  const yyyy=chosen.getFullYear();
+  const mo=String(chosen.getMonth()+1).padStart(2,'0');
+  const dd=String(chosen.getDate()).padStart(2,'0');
+  const h=String(chosen.getHours()).padStart(2,'0');
+  const min=String(chosen.getMinutes()).padStart(2,'0');
+  timeInput.value=yyyy+'-'+mo+'-'+dd+'T'+h+':'+min;
+  callTimeDisplay.textContent=chosen.toLocaleDateString('ru-RU',{day:'numeric',month:'long'})+', '+h+':'+min;
+  openDatePicker.classList.add('hasValue');
+  closeCalendar();
+};
 
 document.querySelectorAll('[data-teams]').forEach(btn => {
   btn.onclick = () => {
