@@ -171,6 +171,15 @@
     .dateConfirm{margin-top:14px;width:100%}
     .dateHint{font-size:12px;color:var(--muted);margin-top:9px;text-align:center}
 
+    .thankScreen{display:none;margin-top:18px}
+    .thankScreen.active{display:block}
+    .thankCard{border:1px solid rgba(255,122,0,.24);background:linear-gradient(135deg,rgba(255,122,0,.11),rgba(255,255,255,.02));border-radius:26px;padding:28px;text-align:center}
+    .thankIcon{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;margin:0 auto 16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:30px;font-weight:950;box-shadow:0 14px 32px rgba(255,122,0,.22)}
+    .thankTitle{font-size:clamp(30px,5vw,44px);font-weight:950;letter-spacing:-.045em;line-height:1.05;margin-bottom:10px}
+    .thankText{max-width:650px;margin:0 auto;color:#d7dce3;font-size:17px;line-height:1.55}
+    .appFooter{margin-top:22px;padding:18px 4px 0;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:12px;line-height:1.6}
+    .appFooter a{color:var(--accent);text-decoration:none}
+
     @media(max-width:760px){
       .metricsGrid,.funnelGrid{grid-template-columns:1fr}
       .shelltop{display:block}
@@ -361,8 +370,20 @@
             <div class="error" id="error">Не удалось отправить заявку. Попробуй ещё раз.</div>
           </div>
         </section>
+
+        <section class="thankScreen" id="thankScreen">
+          <div class="thankCard">
+            <div class="thankIcon">✓</div>
+            <div class="thankTitle">Спасибо, заявка отправлена</div>
+            <p class="thankText">Мы получили данные и свяжемся с тобой в выбранные дату и время. До звонка дополнительно проверим спрос и конкуренцию по твоему городу.</p>
+          </div>
+        </section>
       </div>
     </section>
+
+    <footer class="appFooter">
+      По вопросам приложения и удаления персональных данных: <a href="mailto:tyomiches@vk.com">tyomiches@vk.com</a>
+    </footer>
   </main>
 
   <div class="dateModal" id="dateModal" aria-hidden="true">
@@ -757,8 +778,12 @@ document.getElementById('submit').onclick = async () => {
       headers:{'Content-Type':'text/plain;charset=utf-8'},
       body:JSON.stringify(payload)
     });
-    ok.style.display='block';
+    ok.style.display='none';
     btn.textContent='Заявка отправлена';
+    document.getElementById('leadBox').classList.remove('active');
+    const thankScreen = document.getElementById('thankScreen');
+    thankScreen.classList.add('active');
+    setTimeout(()=>thankScreen.scrollIntoView({behavior:'smooth', block:'center'}), 80);
   } catch(e){
     console.error(e);
     err.style.display='block';
