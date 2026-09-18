@@ -45,7 +45,7 @@
     .wrap{width:min(calc(100% - 18px),var(--max));margin:0 auto;padding:22px 0 54px}
     .eyebrow{
       display:inline-flex;align-items:center;gap:9px;
-      color:var(--accent2);font-size:13px;font-weight:900;letter-spacing:.09em;text-transform:uppercase
+      color:var(--accent2);font-size:13px;font-weight:850;letter-spacing:.055em;text-transform:none
     }
     .eyebrow:before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 20px rgba(255,122,0,.5)}
 
@@ -160,9 +160,9 @@
 </head>
 <body>
   <main class="wrap">
-    <div class="eyebrow">Реальная загрузка бригад под твои условия</div>
-    <h1>Сколько заказов тебе <span class="accentMark">не хватает</span> до <span class="accentWord">стабильной</span> загрузки бригад?</h1>
-    <p class="lead"><span class="timeBadge">За 30 секунд</span> покажем, какой поток заказов, замеров и обращений нужен, чтобы твоя бригада не убежала к конкурентам от простоя.</p>
+    <div class="eyebrow">Загрузка бригад под твои условия</div>
+    <h1>Сколько заказов <span class="accent">не хватает</span><br>до стабильной загрузки бригад?</h1>
+    <p class="lead"><span class="timeBadge">За 30 секунд</span> покажем, какой поток обращений и замеров нужен, чтобы бригада не простаивала.</p>
 
     <section class="shell">
       <div class="shelltop">
@@ -318,11 +318,11 @@
           <div class="metricCard" style="margin-top:18px">
             <div class="eyebrow">Следующий шаг</div>
             <h2 style="font-size:32px;line-height:1.04;letter-spacing:-.04em;margin:12px 0 10px">Проверим, способен ли спрос в твоём городе закрыть этот объём.</h2>
-            <div class="sub">Оставь контакт и напиши удобное время. На коротком звонке уточним ситуацию и расскажем, что мы сможем сделать под твои условия работы.</div>
+            <div class="sub">Оставь контакт и выбери удобные дату и время. На коротком звонке уточним ситуацию и расскажем, что мы сможем сделать под твои условия работы.</div>
             <div class="grid">
               <input class="input" id="name" type="text" placeholder="Имя" />
-              <input class="input" id="phone" type="tel" placeholder="+7 999 000-00-00" />
-              <input class="input" id="time" type="text" placeholder="Когда удобно созвониться?" />
+              <input class="input" id="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="18" placeholder="+7 (999) 000-00-00" />
+              <input class="input" id="time" type="datetime-local" />
             </div>
             <label class="privacyConsent" style="display:flex;align-items:flex-start;gap:10px;margin-top:14px;color:var(--muted);font-size:13px;line-height:1.45;cursor:pointer">
               <input id="privacyConsent" type="checkbox" style="margin-top:3px;accent-color:var(--accent)">
@@ -380,6 +380,36 @@ cityInput.addEventListener('input', () => {
   cityInput.value = cityInput.value.replace(/[0-9]/g, '');
 });
 
+const phoneInput = document.getElementById('phone');
+phoneInput.addEventListener('input', () => {
+  let digits = phoneInput.value.replace(/\D/g, '');
+  if(digits.startsWith('8')) digits = '7' + digits.slice(1);
+  if(!digits.startsWith('7')) digits = '7' + digits;
+  digits = digits.slice(0, 11);
+
+  const p1 = digits.slice(1, 4);
+  const p2 = digits.slice(4, 7);
+  const p3 = digits.slice(7, 9);
+  const p4 = digits.slice(9, 11);
+
+  let formatted = '+7';
+  if(p1) formatted += ' (' + p1;
+  if(p1.length === 3) formatted += ')';
+  if(p2) formatted += ' ' + p2;
+  if(p3) formatted += '-' + p3;
+  if(p4) formatted += '-' + p4;
+  phoneInput.value = formatted;
+});
+
+const timeInput = document.getElementById('time');
+function setMinCallTime(){
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  timeInput.min = now.toISOString().slice(0,16);
+}
+setMinCallTime();
+timeInput.addEventListener('focus', setMinCallTime);
+
 document.querySelectorAll('[data-teams]').forEach(btn => {
   btn.onclick = () => {
     state.teams = +btn.dataset.teams;
@@ -391,7 +421,12 @@ document.querySelectorAll('[data-teams]').forEach(btn => {
 });
 
 document.getElementById('next2').onclick = () => {
-  const v = +document.getElementById('current').value;
+  const raw = document.getElementById('current').value.trim();
+  if(raw === ''){
+    alert('Укажи примерное количество объектов в месяц');
+    return;
+  }
+  const v = Number(raw);
   if(!Number.isFinite(v) || v < 0){
     alert('Укажи примерное количество объектов в месяц');
     return;
@@ -522,7 +557,17 @@ document.getElementById('submit').onclick = async () => {
   const t = document.getElementById('time').value.trim();
   const consent = document.getElementById('privacyConsent').checked;
   if(!n || !p || !t){
-    alert('Заполни имя, телефон и удобное время');
+    alert('Заполни имя, телефон и выбери дату и время');
+    return;
+  }
+  const phoneDigits = p.replace(/\D/g, '');
+  if(phoneDigits.length !== 11){
+    alert('Укажи номер телефона полностью');
+    return;
+  }
+  const selectedCallTime = new Date(t);
+  if(Number.isNaN(selectedCallTime.getTime()) || selectedCallTime.getTime() < Date.now()){
+    alert('Выбери будущую дату и время для звонка');
     return;
   }
   if(!consent){
