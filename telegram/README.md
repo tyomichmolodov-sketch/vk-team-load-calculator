@@ -1,6 +1,6 @@
 # Асpeckor — Telegram Mini App: расчёт загрузки бригад
 
-Статус: **подготовлено в отдельной feature-ветке, НЕ развёрнуто**. Действующее VK Mini App **54772740** не меняется.
+Статус: **интерфейс Mini App уже загружен на Beget и открылся в Telegram (подтверждено скриншотом пользователя 13.10.2026)**. Новая версия серверного `api/lead.php`, сохраняющая заявки в общую Google-таблицу, пока **только в GitHub; на Beget не проверена**. Действующее VK Mini App **54772740** не меняется.
 
 **Целевой адрес развёртывания согласован:** `https://ceilingzamer.ru/aspeckor/`.
 Содержимое папки репозитория `telegram/` должно лежать прямо в веб-каталоге `/aspeckor/`, то есть `telegram/index.html` → `https://ceilingzamer.ru/aspeckor/index.html`, `telegram/app.js` → `.../aspeckor/app.js`, `telegram/api/lead.php` → `.../aspeckor/api/lead.php`. **Не размещайте лишний уровень `/aspeckor/telegram/`.**
