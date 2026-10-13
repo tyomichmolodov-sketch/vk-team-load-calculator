@@ -1,8 +1,9 @@
 <?php
 /**
- * Telegram Mini App lead delivery, server-side only.
- * Set ASPECKOR_BOT_TOKEN and ASPECKOR_LEADS_CHAT_ID in private server config.
- * Never publish real credentials in GitHub.
+ * Telegram Mini App -> verified Google Sheets Apps Script.
+ * Set ASPECKOR_BOT_TOKEN in private server environment.
+ * Never publish Telegram bot credentials in GitHub or public webroot.
+ * Existing VK app and Apps Script are deliberately unchanged.
  */
 declare(strict_types=1);
 ini_set('display_errors','0');
@@ -24,9 +25,7 @@ if(!is_string($raw) || strlen($raw)>24000) reply(400,false,'INVALID_BODY');
 $data=json_decode($raw,true);
 if(!is_array($data)) reply(400,false,'INVALID_JSON');
 $botToken=(string)(getenv('ASPECKOR_BOT_TOKEN') ?: '');
-$chatId=(string)(getenv('ASPECKOR_LEADS_CHAT_ID') ?: '');
-if(!preg_match('/^[0-9]{5,16}:[A-Za-z0-9_-]{20,}$/D',$botToken) ||
-   !preg_match('/^-?[0-9]{5,20}$/D',$chatId)) {
+if(!preg_match('/^[0-9]{5,16}:[A-Za-z0-9_-]{20,}$/D',$botToken)) {
     reply(503,false,'SERVER_NOT_CONFIGURED');
 }
 $init=$data['initData']??null;
@@ -84,40 +83,66 @@ $source=$map[$start]??'Telegram / прямой переход';
 $targets=[1=>24,2=>44,3=>67,4=>83];
 $target=$targets[$teams]??null;
 $gap=$target===null?null:max(0,$target-$current);
-$esc=static fn($s)=>htmlspecialchars((string)$s,ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');
-$lines=[
-    '<b>Заявка: расчёт загрузки бригад</b>',
-    'Источник: '.$esc($source),
-    'Имя: '.$esc($name),
-    'Телефон: +'.$esc($phone),
-    'Город: '.$esc($city),
-    'Бригад: '.$esc($teams===5?'5+':$teams),
-    'Текущих объектов/мес.: '.$esc($current),
-    'Ориентир заказов/мес.: '.$esc($target===null?'индивидуально':$target),
-    'Недостаёт заказов/мес.: '.$esc($gap===null?'индивидуально':$gap),
-    'Желаемый звонок: '.$esc($localTime.' ('.$tz.')'),
-    'Telegram user ID: '.$esc($userId),
+// The Google Apps Script URL is the same endpoint used by the VK Mini App.
+// The sheet and its existing doPost(e) remain unchanged.
+$appsScriptUrl='https://script.google.com/macros/s/AKfycbzJ0Jl_7sx_Dtp6Aana2vHrhoC0VTj5Jtod4o3Mz-nkHW7DYguFScr27H4OenUdJ5mtNA/exec';
+$campaign=in_array($start,['yt','ig','tg'],true) ? $start : '';
+$entryUrl=$campaign!=='' ? 'https://t.me/Aspeckor_bot?startapp='.$campaign : 'https://t.me/Aspeckor_bot';
+$entryParams=json_encode([
+    'start_param'=>$campaign,
+    'telegramUserId'=>(string)$userId
+],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+$requiredMeasures=$target===null ? '' : (string)ceil($target/0.70);
+$requiredLeads=$target===null ? '' : (string)ceil(ceil($target/0.70)/0.33);
+
+$lead=[
+    'name'=>$name,
+    'phone'=>'+'.$phone,
+    'city'=>$city,
+    'teams'=>$teams===5?'5+':(string)$teams,
+    // Strings preserve "0" in the existing Apps Script's "|| ''" expressions.
+    'currentOrders'=>(string)$current,
+    'targetOrders'=>$target===null?'':(string)$target,
+    'orderGap'=>$gap===null?'':(string)$gap,
+    'requiredMeasures'=>$requiredMeasures,
+    'requiredLeads'=>$requiredLeads,
+    'callTime'=>$localTime.' ('.$tz.')',
+    'source'=>$source,
+    'campaign'=>$campaign,
+    'ad'=>'',
+    'entryParams'=>$entryParams,
+    'entryUrl'=>$entryUrl
 ];
+$body=json_encode($lead,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+if(!is_string($body))reply(500,false,'ENCODING_ERROR');
 if(!function_exists('curl_init'))reply(503,false,'CURL_UNAVAILABLE');
-$ch=curl_init('https://api.telegram.org/bot'.$botToken.'/sendMessage');
-$body=json_encode(['chat_id'=>$chatId,'text'=>implode("\n",$lines),'parse_mode'=>'HTML','disable_web_page_preview'=>true],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+
+$ch=curl_init($appsScriptUrl);
+if($ch===false)reply(503,false,'CURL_UNAVAILABLE');
 curl_setopt_array($ch,[
     CURLOPT_POST=>true,
     CURLOPT_POSTFIELDS=>$body,
     CURLOPT_RETURNTRANSFER=>true,
     CURLOPT_CONNECTTIMEOUT=>8,
-    CURLOPT_TIMEOUT=>18,
-    CURLOPT_FOLLOWLOCATION=>false,
+    CURLOPT_TIMEOUT=>25,
+    CURLOPT_FOLLOWLOCATION=>true,
+    CURLOPT_MAXREDIRS=>3,
+    CURLOPT_PROTOCOLS=>CURLPROTO_HTTPS,
+    CURLOPT_REDIR_PROTOCOLS=>CURLPROTO_HTTPS,
     CURLOPT_SSL_VERIFYPEER=>true,
     CURLOPT_SSL_VERIFYHOST=>2,
-    CURLOPT_HTTPHEADER=>['Content-Type: application/json','Accept: application/json'],
+    CURLOPT_HTTPHEADER=>[
+        'Content-Type: text/plain; charset=utf-8',
+        'Accept: application/json'
+    ],
 ]);
-$resp=curl_exec($ch);
-$code=(int)curl_getinfo($ch,CURLINFO_HTTP_CODE);
+$response=curl_exec($ch);
+$status=(int)curl_getinfo($ch,CURLINFO_HTTP_CODE);
 curl_close($ch);
-$answer=is_string($resp)?json_decode($resp,true):null;
-if($code!==200 || !is_array($answer) || ($answer['ok']??null)!==true ||
-   empty($answer['result']['message_id'])) {
-    reply(502,false,'DELIVERY_NOT_CONFIRMED');
+$ack=is_string($response)?json_decode($response,true):null;
+// Google Apps Script ContentService redirects to googleusercontent.com.
+// A 200 alone is NOT sufficient: doPost explicitly returns {success:true}.
+if($status!==200 || !is_array($ack) || ($ack['success']??null)!==true){
+    reply(502,false,'SHEETS_SAVE_NOT_CONFIRMED');
 }
-reply(200,true,'DELIVERED');
+reply(200,true,'SHEETS_SAVED');
