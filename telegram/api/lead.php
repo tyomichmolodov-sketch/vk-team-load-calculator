@@ -25,6 +25,20 @@ if(!is_string($raw) || strlen($raw)>24000) reply(400,false,'INVALID_BODY');
 $data=json_decode($raw,true);
 if(!is_array($data)) reply(400,false,'INVALID_JSON');
 $botToken=(string)(getenv('ASPECKOR_BOT_TOKEN') ?: '');
+if($botToken === '') {
+    // Beget shared hosting: read secret from a PHP file OUTSIDE web document root.
+    // E.g. <site>/aspeckor-secrets.php, next to <site>/public_html/.
+    $documentRoot=realpath((string)($_SERVER['DOCUMENT_ROOT'] ?? ''));
+    if($documentRoot!==false && is_dir($documentRoot)) {
+        $privateConfig=dirname($documentRoot).'/aspeckor-secrets.php';
+        if(is_file($privateConfig) && is_readable($privateConfig)) {
+            $privateSettings=require $privateConfig;
+            if(is_array($privateSettings)) {
+                $botToken=(string)($privateSettings['ASPECKOR_BOT_TOKEN'] ?? '');
+            }
+        }
+    }
+}
 if(!preg_match('/^[0-9]{5,16}:[A-Za-z0-9_-]{20,}$/D',$botToken)) {
     reply(503,false,'SERVER_NOT_CONFIGURED');
 }
