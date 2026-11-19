@@ -693,7 +693,11 @@
       font-size:clamp(58px,9vw,104px);
       line-height:.88;
       letter-spacing:-.07em;
-      white-space:normal;
+      white-space:nowrap;
+    }
+    .resultPainMonth{
+      display:block;
+      margin-top:6px;
     }
     .resultPainSub{
       margin-top:24px;
@@ -706,7 +710,7 @@
 
     .needFlow{
       width:min(100%,720px);
-      margin:14px auto 0;
+      margin:26px auto 0;
       padding:28px 24px 38px;
       border-top:1px solid var(--ink);
       border-bottom:1px solid var(--ink);
@@ -1174,7 +1178,7 @@
             <div class="pill" id="cityPill">Город: —</div>
             <div class="resultKicker">Результат расчёта</div>
             <div class="resultPain">
-              <div class="resultPainLead">Вам не хватает <span class="resultPainValue"><span id="gapHeadline">19</span> <span id="gapObjectsWord">объектов</span></span> в месяц</div>
+              <div class="resultPainLead">Вам не хватает <span class="resultPainValue"><span id="gapHeadline">19</span> <span id="gapObjectsWord">объектов</span></span><span class="resultPainMonth">в месяц</span></div>
               <div class="resultPainSub">чтобы закрыть норму для загрузки<br><strong><span id="teamsInline">2</span> <span id="teamsWord">бригад</span></strong></div>
             </div>
           </div>
