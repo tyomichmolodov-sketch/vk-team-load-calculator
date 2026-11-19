@@ -498,6 +498,169 @@
     }
     .funnelGridCompact{grid-template-columns:repeat(2,1fr)}
 
+    .resultIntro{
+      padding-bottom:24px;
+      border-bottom:2px solid var(--ink);
+    }
+    .resultKicker{
+      margin:4px 0 10px;
+      color:var(--muted);
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+    }
+    .resultTitleMain{
+      max-width:860px;
+      margin:0;
+      font-size:clamp(38px,6vw,66px);
+    }
+    .resultTitleMain .accent{display:block;margin-top:.08em}
+    .resultLead{
+      margin-top:16px;
+      max-width:720px;
+      font-size:clamp(17px,2.3vw,21px);
+      line-height:1.45;
+      color:#34312e;
+    }
+    .resultLead strong{
+      color:var(--accent);
+      font-family:Georgia,'Times New Roman',serif;
+      font-size:1.18em;
+    }
+    .resultNeeds{
+      margin-top:0;
+      border-top:0;
+    }
+    .resultNeeds .metricCard{
+      padding-top:24px;
+      padding-bottom:24px;
+    }
+
+    .stateCompare{
+      margin-top:24px;
+      padding:24px;
+      border:1px solid var(--ink);
+      background:#efede7;
+      box-shadow:6px 6px 0 rgba(16,16,16,.08);
+    }
+    .stateCompareTitle{
+      margin-bottom:18px;
+      font-family:Georgia,'Times New Roman',serif;
+      font-size:clamp(28px,4vw,42px);
+      line-height:1;
+      font-weight:900;
+      letter-spacing:-.045em;
+    }
+    .stateFlow{
+      display:grid;
+      grid-template-columns:1fr 64px 1fr;
+      align-items:stretch;
+      gap:0;
+    }
+    .stateCard{
+      min-width:0;
+      padding:20px;
+      border:1px solid var(--lineDark);
+      background:var(--paper);
+    }
+    .stateCardTarget{
+      border-color:var(--accent);
+      background:#fff;
+      box-shadow:inset 5px 0 0 var(--accent);
+    }
+    .stateLabel{
+      min-height:28px;
+      margin-bottom:18px;
+      color:var(--muted);
+      font-size:10px;
+      line-height:1.35;
+      font-weight:900;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+    .stateCardTarget .stateLabel{color:var(--accent)}
+    .stateObjects{
+      margin-bottom:8px;
+      font-family:Georgia,'Times New Roman',serif;
+      font-size:clamp(40px,6vw,64px);
+      line-height:.9;
+      font-weight:900;
+      letter-spacing:-.06em;
+    }
+    .stateObjects small{
+      display:block;
+      margin-top:8px;
+      font-family:Arial,Helvetica,sans-serif;
+      font-size:12px;
+      line-height:1;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+    .stateRevenue{
+      margin-top:18px;
+      padding-top:15px;
+      border-top:1px solid var(--line);
+      font-family:Georgia,'Times New Roman',serif;
+      font-size:clamp(25px,4vw,38px);
+      line-height:1;
+      font-weight:900;
+      letter-spacing:-.05em;
+    }
+    .stateCardTarget .stateObjects,
+    .stateCardTarget .stateRevenue{color:var(--accent)}
+    .stateArrow{
+      display:grid;
+      place-items:center;
+      color:var(--accent);
+      font-family:Georgia,'Times New Roman',serif;
+      font-size:40px;
+      font-weight:900;
+    }
+    .stateCompareNote{
+      margin-top:15px;
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.45;
+    }
+
+    .ctaFinal{
+      margin-top:30px;
+      padding:28px;
+      background:var(--ink);
+      color:#fff;
+      border-color:var(--ink);
+    }
+    .ctaFinal .ctaKicker{
+      margin-bottom:12px;
+      color:#b8b4ad;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+    }
+    .ctaFinal h2{color:#fff}
+    .ctaFinal .accentHead{color:#fff}
+    .ctaFinal .ctaCopy{
+      margin:18px 0 20px;
+      padding-top:16px;
+      border-top:1px solid rgba(255,255,255,.25);
+      color:#d8d5cf;
+      font-size:15px;
+      line-height:1.55;
+    }
+    .ctaFinal .ctaCopy p{margin:0}
+    .ctaFinal .ctaCopy p+p{margin-top:5px}
+    .ctaFinal .primary{
+      background:var(--accent);
+      border-color:var(--accent);
+      min-height:58px;
+      font-size:12px;
+    }
+    .ctaFinal .primary:hover{background:#fff;color:var(--ink);border-color:#fff}
+
     .reveal{opacity:0;transform:translateY(18px);transition:opacity .45s ease,transform .45s ease}
     .reveal.visible{opacity:1;transform:none}
 
@@ -649,6 +812,11 @@
       .comparisonHead,.comparisonRow{grid-template-columns:.8fr 1fr 1.25fr}
       .comparisonHead>div,.comparisonRow>div{padding:11px 9px}
       .comparisonValue{font-size:clamp(21px,6vw,31px)}
+      .stateFlow{grid-template-columns:1fr}
+      .stateArrow{height:46px;transform:rotate(90deg)}
+      .stateCompare{padding:18px 14px}
+      .stateCard{padding:18px 16px}
+      .stateLabel{min-height:0;margin-bottom:14px}
       .metricsGrid{grid-template-columns:1fr}
       .shelltop{display:block}
       .note{text-align:left;margin-top:8px}
@@ -737,68 +905,64 @@
         </section>
 
         <section class="panel" id="result">
-          <div class="center">
+          <div class="resultIntro reveal">
             <div class="pill" id="cityPill">Город: —</div>
-            <div class="resultTitle">Вот какой объём нужен для <span class="accent">стабильной загрузки бригад</span></div>
-            <div class="arrow">↓</div>
-          </div>
-
-          <div class="metricsGrid">
-            <div class="metricCard primaryMetric reveal">
-              <div class="metricValue" id="orders">44</div>
-              <div class="metricLabel">объекта в месяц</div>
-              <div class="metricSub">ориентир стабильной загрузки для <span id="teamsLabel">2 бригад</span></div>
+            <div class="resultKicker">Результат расчёта</div>
+            <div class="resultTitle resultTitleMain">
+              Сейчас не хватает примерно
+              <span class="accent"><span id="gapHeadline">22</span> объектов в месяц</span>
             </div>
-
-            <div class="metricCard primaryMetric reveal">
-              <div class="metricValue" id="gap">16</div>
-              <div class="metricLabel">объектов в месяц</div>
-              <div class="metricSub">сейчас не хватает до стабильной загрузки</div>
+            <div class="resultLead">
+              Для стабильной загрузки нужно около <strong id="ordersInline">24</strong> объектов в месяц.
             </div>
           </div>
 
-          <div class="funnelGrid funnelGridCompact">
+          <div class="funnelGrid funnelGridCompact resultNeeds">
             <div class="metricCard reveal">
-              <div class="metricValue" id="measures">63</div>
-              <div class="metricLabel">замера в месяц</div>
+              <div class="metricValue" id="measures">35</div>
+              <div class="metricLabel">замеров</div>
               <div class="metricSub">примерно столько нужно провести для нужного объёма объектов</div>
             </div>
 
             <div class="metricCard reveal">
-              <div class="metricValue" id="leads">191</div>
-              <div class="metricLabel">обращение в месяц</div>
+              <div class="metricValue" id="leads">107</div>
+              <div class="metricLabel">обращений</div>
               <div class="metricSub">примерный входящий поток до этапа замера</div>
             </div>
           </div>
 
-          <div class="comparisonCard reveal">
-            <div class="comparisonKicker">Оценка потерь</div>
-            <div class="comparisonHead">
-              <div></div>
-              <div>Сейчас</div>
-              <div>При расчётной загрузке</div>
+          <div class="stateCompare reveal">
+            <div class="stateCompareTitle">Что это значит в деньгах</div>
+
+            <div class="stateFlow">
+              <div class="stateCard stateCardNow">
+                <div class="stateLabel">Сейчас</div>
+                <div class="stateObjects"><span id="currentObjectsCompare">2</span> <small>объекта</small></div>
+                <div class="stateRevenue" id="currentRevenueCompare">50 000 ₽</div>
+              </div>
+
+              <div class="stateArrow" aria-hidden="true">
+                <span>→</span>
+              </div>
+
+              <div class="stateCard stateCardTarget">
+                <div class="stateLabel">При стабильной загрузке</div>
+                <div class="stateObjects"><span id="targetObjectsCompare">24</span> <small>объекта</small></div>
+                <div class="stateRevenue" id="targetRevenueCompare">600 000 ₽</div>
+              </div>
             </div>
-            <div class="comparisonRow">
-              <div class="comparisonLabel">Выручка</div>
-              <div class="comparisonValue" id="currentRevenueCompare">125 000 ₽</div>
-              <div class="comparisonValue comparisonValueAccent" id="targetRevenueCompare">875 000 ₽</div>
-            </div>
-            <div class="comparisonRow">
-              <div class="comparisonLabel">Объектов</div>
-              <div class="comparisonValue" id="currentObjectsCompare">5</div>
-              <div class="comparisonValue comparisonValueAccent" id="targetObjectsCompare">12</div>
-            </div>
-            <div class="comparisonNote">Расчёт выручки — при среднем чеке 25 000 ₽ за объект.</div>
+
+            <div class="stateCompareNote">Расчёт выручки — при среднем чеке 25 000 ₽ за объект.</div>
           </div>
 
-          <div class="summaryCard reveal">
-            <p class="summaryText" id="resultText"></p>
-          </div>
-
-          <div class="cta reveal">
-            <h2><span class="accentHead">Теперь главный вопрос:</span><br>реально ли получить этот объём в вашем городе?</h2>
-            <div class="sub">Посмотрим спрос, конкуренцию и реальную нагрузку под ваши возможности. Если рынок позволяет, покажем, какой нужен бюджет и во сколько ориентировочно обойдутся обращение, замер и клиент.</div>
-            <button class="btn primary" id="openLead">Проверить спрос в моём городе</button>
+          <div class="cta reveal ctaFinal">
+            <div class="ctaKicker">Следующий шаг</div>
+            <h2><span class="accentHead">Готовы пойти дальше?</span><br>Расскажу, как получить этот объём именно в вашем городе.</h2>
+            <div class="ctaCopy">
+              <p>Проверю спрос и покажу, реально ли получить нужный объём.</p>
+              <p>Если спроса недостаточно — скажу прямо и дам рекомендации.</p>
+            </div>
+            <button class="btn primary" id="openLead">Оставить заявку</button>
           </div>
 
           <div class="small">Расчёт основан на средних показателях наших клиентов при объекте от 40 м² и 20 рабочих днях в месяц.</div>
@@ -1101,21 +1265,22 @@ document.getElementById('calc').onclick = () => {
     const targetRevenue = targetOrders * avgTicket;
 
     document.getElementById('cityPill').textContent = 'Город: ' + c;
-    document.getElementById('orders').textContent = targetOrders;
+    document.getElementById('gapHeadline').textContent = orderGap;
+    document.getElementById('ordersInline').textContent = targetOrders;
     document.getElementById('measures').textContent = requiredMeasures;
     document.getElementById('leads').textContent = requiredLeads;
-    document.getElementById('gap').textContent = orderGap;
     document.getElementById('currentRevenueCompare').textContent = currentRevenue.toLocaleString('ru-RU') + ' ₽';
     document.getElementById('targetRevenueCompare').textContent = targetRevenue.toLocaleString('ru-RU') + ' ₽';
     document.getElementById('currentObjectsCompare').textContent = state.current;
     document.getElementById('targetObjectsCompare').textContent = targetOrders;
-    document.getElementById('teamsLabel').textContent = pluralTeams(state.teams);
 
-    const resultText = document.getElementById('resultText');
-    if(orderGap > 0){
-      resultText.innerHTML = 'Сейчас вам не хватает примерно <b>' + orderGap + ' объектов в месяц</b> до стабильной загрузки. Для нужного объёма потребуется около <b>' + requiredLeads + ' обращений</b>, которые конвертируются примерно в <b>' + requiredMeasures + ' замера</b> и дают около <b>' + targetOrders + ' объектов</b>.';
-    } else {
-      resultText.innerHTML = 'По базовой модели вы уже находитесь примерно на уровне стабильной загрузки. Следующий вопрос — насколько этот объём устойчив и не проседает ли загрузка по неделям.';
+    const resultTitle = document.querySelector('.resultTitleMain');
+    if(resultTitle){
+      if(orderGap > 0){
+        resultTitle.innerHTML = 'Сейчас не хватает примерно <span class="accent"><span id="gapHeadline">' + orderGap + '</span> объектов в месяц</span>';
+      } else {
+        resultTitle.innerHTML = 'По расчёту текущей загрузки <span class="accent">объёма уже достаточно</span>';
+      }
     }
 
     show('result');
