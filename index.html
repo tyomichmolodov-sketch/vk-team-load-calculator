@@ -662,7 +662,12 @@
     .ctaFinal .primary:hover{background:#fff;color:var(--ink);border-color:#fff}
 
     .resultHero{
-      padding-bottom:28px;
+      min-height:72vh;
+      min-height:72dvh;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      padding:34px 0 40px;
       border-bottom:2px solid var(--ink);
     }
     .resultKicker{
@@ -676,28 +681,33 @@
     .resultPainLead{
       max-width:860px;
       font-family:Georgia,'Times New Roman',serif;
-      font-size:clamp(34px,5vw,58px);
-      line-height:1.03;
+      font-size:clamp(38px,5.8vw,70px);
+      line-height:1.01;
       font-weight:900;
-      letter-spacing:-.045em;
+      letter-spacing:-.05em;
     }
     .resultPainValue{
+      display:block;
+      margin-top:10px;
       color:var(--accent);
-      white-space:nowrap;
+      font-size:clamp(58px,9vw,104px);
+      line-height:.88;
+      letter-spacing:-.07em;
+      white-space:normal;
     }
     .resultPainSub{
-      margin-top:14px;
+      margin-top:24px;
       max-width:720px;
-      font-size:clamp(17px,2.3vw,21px);
-      line-height:1.45;
+      font-size:clamp(18px,2.5vw,24px);
+      line-height:1.4;
       color:#34312e;
     }
     .resultPainSub strong{color:var(--ink)}
 
     .needFlow{
       width:min(100%,720px);
-      margin:34px auto 0;
-      padding:30px 24px;
+      margin:56px auto 0;
+      padding:38px 24px;
       border-top:1px solid var(--ink);
       border-bottom:1px solid var(--ink);
       text-align:center;
@@ -715,7 +725,25 @@
       display:grid;
       justify-items:center;
       gap:8px;
+      opacity:0;
+      transform:translateY(18px);
+      transition:opacity .5s ease, transform .5s ease;
     }
+    .needArrow{
+      opacity:0;
+      transform:translateY(10px);
+      transition:opacity .4s ease, transform .4s ease;
+    }
+    .needFlow.flowVisible .needStep,
+    .needFlow.flowVisible .needArrow{
+      opacity:1;
+      transform:none;
+    }
+    .needFlow.flowVisible .needStep:nth-of-type(1){transition-delay:.05s}
+    .needFlow.flowVisible .needArrow:nth-of-type(2){transition-delay:.18s}
+    .needFlow.flowVisible .needStep:nth-of-type(3){transition-delay:.3s}
+    .needFlow.flowVisible .needArrow:nth-of-type(4){transition-delay:.42s}
+    .needFlow.flowVisible .needStep:nth-of-type(5){transition-delay:.54s}
     .needNumber{
       color:var(--accent);
       font-family:Georgia,'Times New Roman',serif;
@@ -738,6 +766,9 @@
       font-family:Georgia,'Times New Roman',serif;
       font-size:36px;
       line-height:1;
+      opacity:0;
+      transform:translateY(10px);
+      transition:opacity .4s ease, transform .4s ease;
     }
 
     .moneyBlock{
@@ -1065,6 +1096,10 @@
       .metricCard{padding:17px 15px}
       .revenueCard,.cta,.thankCard{padding:20px 16px}
       h1{font-size:clamp(40px,12vw,58px)}
+      .resultHero{min-height:76vh;min-height:76dvh;padding:28px 0 34px}
+      .resultPainLead{font-size:clamp(38px,11vw,58px)}
+      .resultPainValue{font-size:clamp(62px,17vw,88px)}
+      .resultPainSub{font-size:18px}
     }
 </style>
 </head>
@@ -1552,6 +1587,19 @@ const revealObserver = new IntersectionObserver((entries)=>{
 },{threshold:.16,rootMargin:'0px 0px -7% 0px'});
 
 document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
+
+const needFlow = document.querySelector('.needFlow');
+if(needFlow){
+  const flowObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        needFlow.classList.add('flowVisible');
+        flowObserver.unobserve(needFlow);
+      }
+    });
+  },{threshold:.35,rootMargin:'0px 0px -8% 0px'});
+  flowObserver.observe(needFlow);
+}
 
 document.getElementById('submit').onclick = async () => {
   const n = document.getElementById('name').value.trim();
