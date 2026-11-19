@@ -445,6 +445,59 @@
     .revenueReveal.revealed .revenueCoverText{opacity:0;transform:scale(.86)}
     .revenueReveal.revealed .shard{opacity:0;transform:translate(-50%,-50%) rotate(calc(var(--r) + 28deg)) translate(calc(var(--x) * 3.2),calc(var(--y) * 3.2)) scale(.45)}
 
+    .comparisonCard{
+      margin-top:20px;
+      border:2px solid var(--accent);
+      background:#fff;
+      box-shadow:6px 6px 0 rgba(179,13,24,.12);
+    }
+    .comparisonKicker{
+      display:inline-block;
+      margin:18px 18px 12px;
+      padding:5px 8px;
+      background:var(--accent);
+      color:#fff;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+    .comparisonHead,.comparisonRow{
+      display:grid;
+      grid-template-columns:1fr 1fr 1.25fr;
+      align-items:center;
+    }
+    .comparisonHead{
+      border-top:1px solid var(--line);
+      border-bottom:1px solid var(--line);
+      background:#f2f0ea;
+      color:var(--muted);
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .comparisonHead>div,.comparisonRow>div{padding:13px 14px}
+    .comparisonHead>div+div,.comparisonRow>div+div{border-left:1px solid var(--line)}
+    .comparisonRow+.comparisonRow{border-top:1px solid var(--line)}
+    .comparisonLabel{font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+    .comparisonValue{
+      font-family:Georgia,'Times New Roman',serif;
+      font-size:clamp(24px,4vw,38px);
+      font-weight:900;
+      line-height:1;
+      letter-spacing:-.05em;
+    }
+    .comparisonValueAccent{color:var(--accent)}
+    .comparisonNote{
+      padding:12px 14px;
+      border-top:1px solid var(--line);
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.45;
+    }
+    .funnelGridCompact{grid-template-columns:repeat(2,1fr)}
+
     .reveal{opacity:0;transform:translateY(18px);transition:opacity .45s ease,transform .45s ease}
     .reveal.visible{opacity:1;transform:none}
 
@@ -593,6 +646,9 @@
 
     @media(max-width:760px){
       .funnelGrid{grid-template-columns:1fr}
+      .comparisonHead,.comparisonRow{grid-template-columns:.8fr 1fr 1.25fr}
+      .comparisonHead>div,.comparisonRow>div{padding:11px 9px}
+      .comparisonValue{font-size:clamp(21px,6vw,31px)}
       .metricsGrid{grid-template-columns:1fr}
       .shelltop{display:block}
       .note{text-align:left;margin-top:8px}
@@ -701,55 +757,38 @@
             </div>
           </div>
 
-          <div class="funnelGrid">
+          <div class="funnelGrid funnelGridCompact">
             <div class="metricCard reveal">
               <div class="metricValue" id="measures">63</div>
               <div class="metricLabel">замера в месяц</div>
-              <div class="metricSub">примерно столько нужно провести, чтобы держать нужный объём объектов</div>
+              <div class="metricSub">примерно столько нужно провести для нужного объёма объектов</div>
             </div>
 
             <div class="metricCard reveal">
               <div class="metricValue" id="leads">191</div>
               <div class="metricLabel">обращение в месяц</div>
-              <div class="metricSub">примерно такой входящий поток нужен до этапа замера</div>
-            </div>
-
-            <div class="metricCard reveal">
-              <div class="metricValue" id="views">1318</div>
-              <div class="metricLabel">просмотров в месяц</div>
-              <div class="metricSub">при средней конверсии просмотра в обращение 14,5%</div>
+              <div class="metricSub">примерный входящий поток до этапа замера</div>
             </div>
           </div>
 
-          <div class="revenueCard reveal">
-            <div class="revenueEyebrow">Это примерно</div>
-            <div class="revenueReveal" id="revenueReveal" role="button" tabindex="0" aria-label="Показать потерянную выручку">
-              <div class="revenueValue" id="lostRevenue">400 000 ₽</div>
-              <div class="revenueCover">
-                <span class="shard" style="--r:-28deg;--x:-115px;--y:-24px"></span>
-                <span class="shard" style="--r:18deg;--x:-58px;--y:22px"></span>
-                <span class="shard" style="--r:44deg;--x:8px;--y:-28px"></span>
-                <span class="shard" style="--r:-12deg;--x:72px;--y:20px"></span>
-                <span class="shard" style="--r:31deg;--x:128px;--y:-18px"></span>
-                <span class="shard" style="--r:8deg;--x:-8px;--y:30px"></span>
-                <span class="revenueCoverText">Нажми, чтобы увидеть сумму</span>
-              </div>
+          <div class="comparisonCard reveal">
+            <div class="comparisonKicker">Оценка потерь</div>
+            <div class="comparisonHead">
+              <div></div>
+              <div>Сейчас</div>
+              <div>При расчётной загрузке</div>
             </div>
-            <div class="revenueText">потерянной выручки уже сейчас</div>
-            <div class="revenueNote">при среднем чеке 25 000 ₽ за объект</div>
-          </div>
-
-          <div class="metricsGrid" style="margin-top:14px">
-            <div class="metricCard reveal">
-              <div class="metricValue" id="currentShow">28</div>
-              <div class="metricLabel">объектов в месяц</div>
-              <div class="metricSub">делаете сейчас в среднем</div>
+            <div class="comparisonRow">
+              <div class="comparisonLabel">Выручка</div>
+              <div class="comparisonValue" id="currentRevenueCompare">125 000 ₽</div>
+              <div class="comparisonValue comparisonValueAccent" id="targetRevenueCompare">875 000 ₽</div>
             </div>
-            <div class="metricCard reveal">
-              <div class="metricValue" id="currentRevenue">700 000 ₽</div>
-              <div class="metricLabel">текущая выручка</div>
-              <div class="metricSub">ориентир при среднем чеке 25 000 ₽</div>
+            <div class="comparisonRow">
+              <div class="comparisonLabel">Объектов</div>
+              <div class="comparisonValue" id="currentObjectsCompare">5</div>
+              <div class="comparisonValue comparisonValueAccent" id="targetObjectsCompare">12</div>
             </div>
+            <div class="comparisonNote">Расчёт выручки — при среднем чеке 25 000 ₽ за объект.</div>
           </div>
 
           <div class="summaryCard reveal">
@@ -1057,24 +1096,20 @@ document.getElementById('calc').onclick = () => {
     const orderGap = Math.max(0, targetOrders - state.current);
     const requiredMeasures = Math.ceil(targetOrders / 0.70);
     const requiredLeads = Math.ceil(requiredMeasures / 0.33);
-    const requiredViews = Math.ceil(requiredLeads / VIEW_TO_LEAD_CONV);
     const avgTicket = 25000;
-    const lostRevenue = orderGap * avgTicket;
     const currentRevenue = state.current * avgTicket;
+    const targetRevenue = targetOrders * avgTicket;
 
     document.getElementById('cityPill').textContent = 'Город: ' + c;
     document.getElementById('orders').textContent = targetOrders;
     document.getElementById('measures').textContent = requiredMeasures;
     document.getElementById('leads').textContent = requiredLeads;
-    document.getElementById('views').textContent = requiredViews;
-    document.getElementById('currentShow').textContent = state.current;
     document.getElementById('gap').textContent = orderGap;
-    const lostRevenueEl = document.getElementById('lostRevenue');
-    lostRevenueEl.dataset.target = String(lostRevenue);
-    lostRevenueEl.textContent = '••• ••• ₽';
-    document.getElementById('currentRevenue').textContent = currentRevenue.toLocaleString('ru-RU') + ' ₽';
+    document.getElementById('currentRevenueCompare').textContent = currentRevenue.toLocaleString('ru-RU') + ' ₽';
+    document.getElementById('targetRevenueCompare').textContent = targetRevenue.toLocaleString('ru-RU') + ' ₽';
+    document.getElementById('currentObjectsCompare').textContent = state.current;
+    document.getElementById('targetObjectsCompare').textContent = targetOrders;
     document.getElementById('teamsLabel').textContent = pluralTeams(state.teams);
-    document.getElementById('revenueReveal').classList.remove('revealed');
 
     const resultText = document.getElementById('resultText');
     if(orderGap > 0){
@@ -1106,44 +1141,6 @@ const revealObserver = new IntersectionObserver((entries)=>{
 },{threshold:.16,rootMargin:'0px 0px -7% 0px'});
 
 document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
-
-const revenueReveal = document.getElementById('revenueReveal');
-let revenueAnimating = false;
-
-function animateRevenueNumber(){
-  const el = document.getElementById('lostRevenue');
-  const target = Number(el.dataset.target || 0);
-  const duration = 1450;
-  const start = performance.now();
-  revenueAnimating = true;
-
-  function frame(now){
-    const p = Math.min(1, (now - start) / duration);
-    const ease = 1 - Math.pow(1 - p, 4);
-    const jitterStrength = Math.pow(1 - p, 2);
-    const jitter = (Math.random() - .5) * Math.max(target * .22, 50000) * jitterStrength;
-    const value = Math.max(0, Math.round((target * ease + jitter) / 1000) * 1000);
-    el.textContent = value.toLocaleString('ru-RU') + ' ₽';
-    if(p < 1){
-      requestAnimationFrame(frame);
-    } else {
-      el.textContent = target.toLocaleString('ru-RU') + ' ₽';
-      revenueAnimating = false;
-    }
-  }
-  requestAnimationFrame(frame);
-}
-
-function revealRevenue(){
-  if(revenueReveal.classList.contains('revealed') || revenueAnimating) return;
-  revenueReveal.classList.add('revealed');
-  revenueReveal.setAttribute('aria-label','Потерянная выручка показана');
-  setTimeout(animateRevenueNumber, 170);
-}
-revenueReveal.addEventListener('click',revealRevenue);
-revenueReveal.addEventListener('keydown',(e)=>{
-  if(e.key==='Enter'||e.key===' '){e.preventDefault();revealRevenue();}
-});
 
 document.getElementById('submit').onclick = async () => {
   const n = document.getElementById('name').value.trim();
