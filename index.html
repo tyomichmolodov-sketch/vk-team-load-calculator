@@ -674,20 +674,16 @@
       text-transform:uppercase;
     }
     .resultPainLead{
+      max-width:860px;
       font-family:Georgia,'Times New Roman',serif;
-      font-size:clamp(28px,4vw,42px);
-      line-height:1;
+      font-size:clamp(34px,5vw,58px);
+      line-height:1.03;
       font-weight:900;
-      letter-spacing:-.04em;
+      letter-spacing:-.045em;
     }
     .resultPainValue{
-      margin-top:6px;
       color:var(--accent);
-      font-family:Georgia,'Times New Roman',serif;
-      font-size:clamp(46px,7vw,78px);
-      line-height:.9;
-      font-weight:900;
-      letter-spacing:-.065em;
+      white-space:nowrap;
     }
     .resultPainSub{
       margin-top:14px;
@@ -871,6 +867,7 @@
       margin-bottom:16px;
     }
     .ctaFinal .accentHead{color:var(--accent)}
+    .ctaHeadlineGap{display:block;margin-top:18px}
     .ctaFinal .ctaCopy{
       margin:0 0 20px;
       padding-top:16px;
@@ -1142,9 +1139,8 @@
             <div class="pill" id="cityPill">Город: —</div>
             <div class="resultKicker">Результат расчёта</div>
             <div class="resultPain">
-              <div class="resultPainLead">Вам не хватает</div>
-              <div class="resultPainValue"><span id="gapHeadline">19</span> объектов в месяц</div>
-              <div class="resultPainSub">чтобы стабильно загрузить <strong id="teamsInline">2 бригады</strong></div>
+              <div class="resultPainLead">Вам не хватает <span class="resultPainValue"><span id="gapHeadline">19</span> <span id="gapObjectsWord">объектов</span></span> в месяц</div>
+              <div class="resultPainSub">чтобы закрыть норму для загрузки <strong><span id="teamsInline">2</span> <span id="teamsWord">бригад</span></strong></div>
             </div>
           </div>
 
@@ -1153,27 +1149,27 @@
 
             <div class="needStep">
               <div class="needNumber" id="leads">191</div>
-              <div class="needText">обращение потенциальных клиентов</div>
+              <div class="needText"><span id="leadsWord">обращений</span> потенциальных клиентов</div>
             </div>
 
             <div class="needArrow" aria-hidden="true">↓</div>
 
             <div class="needStep">
               <div class="needNumber" id="measures">63</div>
-              <div class="needText">реальных замера</div>
+              <div class="needText">реальных <span id="measuresWord">замеров</span></div>
             </div>
 
             <div class="needArrow" aria-hidden="true">↓</div>
 
             <div class="needStep needStepFinal">
               <div class="needNumber" id="ordersInline">44</div>
-              <div class="needText">объекта в месяц возьмёте в работу</div>
+              <div class="needText"><span id="ordersWord">объекта</span> в месяц возьмёте в работу</div>
             </div>
           </section>
 
           <section class="moneyBlock reveal" aria-labelledby="moneyTitle">
-            <div class="moneyKicker">Деньги</div>
-            <h2 class="moneyTitle" id="moneyTitle">Сколько выручки проходит мимо уже сейчас?</h2>
+            <div class="moneyKicker">Ориентировочный потенциал</div>
+            <h2 class="moneyTitle" id="moneyTitle">Сколько выручки проходит мимо?</h2>
 
             <div class="moneyCompare">
               <div class="moneySide">
@@ -1192,7 +1188,7 @@
             </div>
 
             <div class="moneyLoss">
-              <span>Недобор сейчас</span>
+              <span>Разница в выручке</span>
               <strong id="lostRevenueCompare">~475 000 ₽ в месяц</strong>
             </div>
 
@@ -1201,7 +1197,7 @@
 
           <section class="cta reveal ctaFinal">
             <div class="ctaKicker">Следующий шаг</div>
-            <h2><span class="accentHead">Готовы пойти дальше?</span><br>Расскажу, как получить этот объём именно в вашем городе.</h2>
+            <h2><span class="accentHead">Готовы пойти дальше?</span><span class="ctaHeadlineGap">Расскажу, как получить этот объём именно в вашем городе.</span></h2>
             <div class="ctaCopy">
               <p>Проверю спрос и покажу, реально ли получить нужный объём.</p>
               <p>Если спроса недостаточно — скажу прямо и дам рекомендации.</p>
@@ -1323,9 +1319,17 @@ function prog(n){
   [1,2,3].forEach(i=>document.getElementById('p'+i).classList.toggle('done',i<=n));
 }
 
+function pluralWord(n, one, few, many){
+  const abs = Math.abs(Number(n)) % 100;
+  const last = abs % 10;
+  if(abs > 10 && abs < 20) return many;
+  if(last === 1) return one;
+  if(last >= 2 && last <= 4) return few;
+  return many;
+}
+
 function pluralTeams(n){
-  if(n===1) return '1 бригады';
-  return n + ' бригад';
+  return n + ' ' + pluralWord(n, 'бригада', 'бригады', 'бригад');
 }
 
 const cityInput = document.getElementById('city');
@@ -1510,10 +1514,15 @@ document.getElementById('calc').onclick = () => {
 
     document.getElementById('cityPill').textContent = 'Город: ' + c;
     document.getElementById('gapHeadline').textContent = orderGap;
-    document.getElementById('teamsInline').textContent = pluralTeams(state.teams);
+    document.getElementById('gapObjectsWord').textContent = pluralWord(orderGap, 'объект', 'объекта', 'объектов');
+    document.getElementById('teamsInline').textContent = state.teams;
+    document.getElementById('teamsWord').textContent = pluralWord(state.teams, 'бригады', 'бригад', 'бригад');
     document.getElementById('ordersInline').textContent = targetOrders;
+    document.getElementById('ordersWord').textContent = pluralWord(targetOrders, 'объект', 'объекта', 'объектов');
     document.getElementById('measures').textContent = requiredMeasures;
+    document.getElementById('measuresWord').textContent = pluralWord(requiredMeasures, 'замер', 'замера', 'замеров');
     document.getElementById('leads').textContent = requiredLeads;
+    document.getElementById('leadsWord').textContent = pluralWord(requiredLeads, 'обращение', 'обращения', 'обращений');
     document.getElementById('currentRevenueCompare').textContent = currentRevenue.toLocaleString('ru-RU') + ' ₽';
     document.getElementById('targetRevenueCompare').textContent = targetRevenue.toLocaleString('ru-RU') + ' ₽';
     document.getElementById('currentObjectsCompare').textContent = state.current;
