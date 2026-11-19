@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#090b0f" />
+  <meta name="theme-color" content="#f7f6f2" />
   <title>Расчёт загрузки бригад</title>
   <script src="https://unpkg.com/@vkontakte/vk-bridge@2.15.9/dist/browser.min.js"></script>
   <script>
@@ -15,195 +15,618 @@
   </script>
   <style>
     :root{
-      --bg:#090b0f;
-      --bg2:#0f1218;
-      --card:#151922;
-      --text:#f7f9fc;
-      --muted:#9ea7b3;
-      --line:rgba(255,255,255,.08);
-      --accent:#ff7a00;
-      --accent2:#ff9a3c;
-      --accentSoft:rgba(255,122,0,.10);
-      --success:#c6f5d5;
-      --danger:#ffd0d0;
-      --max:920px;
+      --paper:#f7f6f2;
+      --paper2:#efede7;
+      --ink:#101010;
+      --muted:#68645e;
+      --line:#c9c5bd;
+      --lineDark:#8f8a82;
+      --accent:#b30d18;
+      --accentDark:#8f0913;
+      --success:#176b3a;
+      --danger:#9f1b23;
+      --max:980px;
     }
 
     *{box-sizing:border-box}
     html,body{margin:0}
+    html{background:var(--paper)}
     body{
       min-height:100vh;
-      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      color:var(--text);
+      font-family:Arial,Helvetica,sans-serif;
+      color:var(--ink);
       background:
-        radial-gradient(900px 500px at 10% -10%,rgba(255,122,0,.16),transparent 35%),
-        radial-gradient(700px 360px at 100% 0%,rgba(255,122,0,.08),transparent 35%),
-        linear-gradient(180deg,#0a0d12,#090b0f);
+        linear-gradient(rgba(16,16,16,.018) 1px,transparent 1px),
+        var(--paper);
+      background-size:100% 28px;
       overflow-x:hidden;
     }
+    button,input{font:inherit}
 
-    .wrap{width:min(calc(100% - 18px),var(--max));margin:0 auto;padding:22px 0 54px}
-    .eyebrow{
-      display:inline-flex;align-items:center;gap:9px;
-      color:var(--accent2);font-size:13px;font-weight:850;letter-spacing:.055em;text-transform:none
+    .wrap{
+      width:min(calc(100% - 28px),var(--max));
+      margin:0 auto;
+      padding:22px 0 48px;
     }
-    .eyebrow:before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 20px rgba(255,122,0,.5)}
+
+    .brandMasthead{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:18px;
+      padding:0 0 15px;
+      margin-bottom:18px;
+      border-bottom:1px solid var(--ink);
+    }
+    .brandName{
+      font-family:Georgia,'Times New Roman',serif;
+      font-weight:900;
+      letter-spacing:-.06em;
+      font-size:clamp(25px,4vw,38px);
+      line-height:.9;
+    }
+    .brandName span{color:var(--accent)}
+    .brandTag{
+      text-align:right;
+      font-size:10px;
+      line-height:1.35;
+      font-weight:800;
+      letter-spacing:.15em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .eyebrow{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:var(--muted);
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+    }
+    .eyebrow:before{
+      content:"";
+      width:30px;
+      height:3px;
+      background:var(--accent);
+      flex:0 0 auto;
+    }
 
     h1,h2,h3,p{margin-top:0}
-    h1{font-size:clamp(36px,6.2vw,60px);line-height:1.03;letter-spacing:-.05em;margin:22px 0 22px;max-width:800px}
+    h1{
+      max-width:880px;
+      margin:22px 0 18px;
+      font-family:Georgia,'Times New Roman',serif;
+      font-size:clamp(43px,7vw,78px);
+      line-height:.91;
+      letter-spacing:-.065em;
+      font-weight:900;
+    }
     .accent{color:var(--accent)}
-    .accentMark{color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));padding:0 .07em .015em;border-radius:.11em;line-height:1.04;box-decoration-break:clone;-webkit-box-decoration-break:clone}
-    .accentWord{color:var(--accent);position:relative;white-space:nowrap}
-    .accentWord:after{content:"";position:absolute;left:0;right:0;bottom:-.08em;height:.09em;border-radius:99px;background:var(--accent);opacity:.9}
-    .timeBadge{display:inline-block;color:var(--accent);font-weight:950;margin-right:.18em}
-    .lead{font-size:clamp(17px,2.2vw,21px);line-height:1.6;color:#d7dce3;max-width:790px;margin-bottom:8px}
+    .accentMark{color:var(--accent)}
+    .accentWord{color:var(--accent);position:relative}
+    .accentWord:after{display:none}
+    .timeBadge{
+      display:inline-block;
+      color:var(--accent);
+      font-weight:900;
+      margin-right:.25em;
+    }
+    .lead{
+      max-width:820px;
+      margin-bottom:25px;
+      font-size:clamp(17px,2.2vw,22px);
+      line-height:1.45;
+      font-weight:600;
+      letter-spacing:-.02em;
+      color:#34312e;
+    }
 
     .shell{
-      margin-top:22px;
-      border:1px solid var(--line);
-      border-radius:30px;
-      background:linear-gradient(180deg,rgba(21,25,33,.92),rgba(11,14,19,.98));
+      margin-top:20px;
+      border:1px solid var(--ink);
+      border-radius:0;
+      background:rgba(247,246,242,.96);
       overflow:hidden;
-      box-shadow:0 22px 70px rgba(0,0,0,.38)
+      box-shadow:8px 8px 0 rgba(16,16,16,.07);
     }
-    .shelltop{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;padding:17px 20px;border-bottom:1px solid var(--line)}
-    .brand{font-weight:900;letter-spacing:-.02em}
-    .note{color:var(--muted);font-size:12px;text-align:right}
+    .shelltop{
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      align-items:flex-start;
+      padding:15px 18px;
+      border-bottom:1px solid var(--ink);
+      background:#eeece6;
+    }
+    .brand{
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+    .note{
+      max-width:280px;
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.45;
+      text-align:right;
+    }
 
-    .progress{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:16px 20px 0}
-    .bar{height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
-    .bar.done{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+    .progress{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:0;
+      padding:0;
+      border-bottom:1px solid var(--line);
+    }
+    .bar{
+      height:6px;
+      border-radius:0;
+      background:#dedbd4;
+      border-right:1px solid var(--paper);
+    }
+    .bar.done{background:var(--accent)}
 
-    .content{padding:20px}
+    .content{padding:clamp(20px,4vw,38px)}
     .panel{display:none}
     .panel.active{display:block}
-    .q{font-size:29px;line-height:1.05;font-weight:900;letter-spacing:-.035em;margin-bottom:10px}
-    .sub{color:var(--muted);line-height:1.5;margin-bottom:18px}
-    .grid{display:grid;gap:11px}
-    .option,.btn{width:100%;min-height:58px;border-radius:18px;font:inherit;font-weight:850;cursor:pointer;transition:.18s ease}
-    .option{border:1px solid var(--line);background:rgba(255,255,255,.02);color:#fff;text-align:left;padding:0 18px}
-    .option:hover,.option.selected{border-color:rgba(255,122,0,.58);background:rgba(255,122,0,.09);transform:translateY(-1px)}
-    .input{width:100%;min-height:62px;border-radius:18px;border:1px solid var(--line);background:rgba(0,0,0,.2);color:#fff;padding:0 16px;font:inherit;font-size:18px;outline:none}
-    .input:focus{border-color:rgba(255,122,0,.6);box-shadow:0 0 0 4px rgba(255,122,0,.08)}
-    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
-    .btn{border:none;padding:0 18px}
-    .btn:disabled{opacity:.55;cursor:default}
-    .primary{background:linear-gradient(135deg,var(--accent),#ff9c40);color:#fff;box-shadow:0 14px 28px rgba(255,122,0,.16)}
-    .ghost{background:transparent;color:#fff;border:1px solid var(--line)}
+    .q{
+      max-width:780px;
+      margin-bottom:10px;
+      font-family:Georgia,'Times New Roman',serif;
+      font-size:clamp(30px,4vw,45px);
+      line-height:1;
+      font-weight:900;
+      letter-spacing:-.045em;
+    }
+    .sub{
+      max-width:760px;
+      color:var(--muted);
+      line-height:1.55;
+      margin-bottom:20px;
+    }
 
-    .loader{text-align:center;padding:30px 10px 36px}
-    .loaderBig{font-size:clamp(34px,6vw,58px);line-height:1;letter-spacing:-.055em;font-weight:950;margin:14px auto 0;max-width:720px;animation:fade .5s ease forwards}
+    .grid{display:grid;gap:9px}
+    .option,.btn{
+      width:100%;
+      min-height:56px;
+      border-radius:0;
+      font-weight:800;
+      cursor:pointer;
+      transition:.15s ease;
+    }
+    .option{
+      position:relative;
+      border:1px solid var(--lineDark);
+      background:transparent;
+      color:var(--ink);
+      text-align:left;
+      padding:0 17px;
+    }
+    .option:after{
+      content:"→";
+      position:absolute;
+      right:17px;
+      top:50%;
+      transform:translateY(-50%);
+      color:var(--accent);
+      font-size:19px;
+    }
+    .option:hover,.option.selected{
+      border-color:var(--accent);
+      background:#fff;
+      color:var(--accent);
+      transform:translateX(3px);
+    }
+
+    .input{
+      width:100%;
+      min-height:60px;
+      border-radius:0;
+      border:1px solid var(--lineDark);
+      background:#fff;
+      color:var(--ink);
+      padding:0 15px;
+      font-size:18px;
+      outline:none;
+    }
+    .input::placeholder{color:#928d85}
+    .input:focus{
+      border-color:var(--accent);
+      box-shadow:inset 4px 0 0 var(--accent);
+    }
+
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+    .btn{border:1px solid var(--ink);padding:0 18px}
+    .btn:disabled{opacity:.55;cursor:default}
+    .primary{
+      background:var(--ink);
+      color:#fff;
+      border-color:var(--ink);
+      box-shadow:none;
+      text-transform:uppercase;
+      letter-spacing:.07em;
+      font-size:12px;
+    }
+    .primary:hover{background:var(--accent);border-color:var(--accent)}
+    .ghost{background:transparent;color:var(--ink);border:1px solid var(--lineDark)}
+    .ghost:hover{border-color:var(--ink)}
+
+    .loader{text-align:center;padding:32px 10px 38px}
+    .loaderBig{
+      font-family:Georgia,'Times New Roman',serif;
+      font-size:clamp(38px,6vw,64px);
+      line-height:.95;
+      letter-spacing:-.055em;
+      font-weight:900;
+      margin:18px auto 0;
+      max-width:760px;
+      animation:fade .5s ease forwards;
+    }
     .loaderBig span{color:var(--accent)}
     @keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-    .spinner{width:66px;height:66px;margin:22px auto 0;border:4px solid rgba(255,255,255,.1);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+    .spinner{
+      width:54px;
+      height:54px;
+      margin:25px auto 0;
+      border:3px solid #d7d3cb;
+      border-top-color:var(--accent);
+      border-radius:50%;
+      animation:spin .9s linear infinite;
+    }
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    .center{ text-align:center; }
-    .arrow{font-size:30px;color:var(--accent);line-height:1;margin:6px 0 12px}
-    .resultTitle{font-size:clamp(31px,5vw,50px);font-weight:950;line-height:1.05;letter-spacing:-.045em;max-width:780px;margin:0 auto 6px}
-    .pill{display:inline-block;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,122,0,.26);background:rgba(255,122,0,.08);color:#ffe1c4;font-weight:800;font-size:13px;margin-bottom:18px}
+    .center{text-align:left}
+    .arrow{font-size:26px;color:var(--accent);line-height:1;margin:8px 0 16px}
+    .resultTitle{
+      max-width:850px;
+      margin:0 0 10px;
+      font-family:Georgia,'Times New Roman',serif;
+      font-size:clamp(34px,5vw,58px);
+      font-weight:900;
+      line-height:.96;
+      letter-spacing:-.05em;
+    }
+    .pill{
+      display:inline-block;
+      margin-bottom:16px;
+      padding:5px 8px;
+      border:1px solid var(--accent);
+      border-radius:0;
+      background:transparent;
+      color:var(--accent);
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
 
-    .metricsGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:10px}
-    .metricCard.primaryMetric{border-color:rgba(255,122,0,.26);background:linear-gradient(180deg,rgba(255,122,0,.08),rgba(255,255,255,.025))}
-    .funnelGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
-    .revenueCard{margin-top:14px;border:1px solid rgba(255,122,0,.38);background:linear-gradient(135deg,rgba(255,122,0,.17),rgba(255,122,0,.045));border-radius:26px;padding:24px 26px;text-align:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
-    .revenueEyebrow{font-size:15px;letter-spacing:.01em;font-weight:900;color:#fff;margin-bottom:10px}
-    .revenueValue{font-size:clamp(42px,8vw,82px);font-weight:950;letter-spacing:-.07em;line-height:.95;color:#ff4d4f;margin-bottom:8px;text-shadow:0 0 26px rgba(255,77,79,.16)}
-    .revenueText{font-size:clamp(19px,2.7vw,25px);font-weight:900;line-height:1.2;margin:0 auto 8px;max-width:720px;color:#fff}
-    .revenueNote{font-size:13px;color:var(--muted)}
-    .metricCard{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));border-radius:24px;padding:20px;position:relative;overflow:hidden}
-    .metricCard:before{content:"";position:absolute;inset:auto -40px -60px auto;width:160px;height:160px;background:radial-gradient(circle, rgba(255,122,0,.18), transparent 60%);pointer-events:none}
-    .metricValue{font-size:clamp(42px,7vw,82px);font-weight:950;letter-spacing:-.07em;line-height:.92;color:var(--accent);margin-bottom:8px}
-    .metricLabel{font-size:19px;line-height:1.1;font-weight:900;color:#fff;margin-bottom:6px}
-    .metricSub{color:var(--muted);font-size:14px;line-height:1.45}
+    .metricsGrid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:0;
+      margin-top:8px;
+      border-top:2px solid var(--ink);
+      border-left:1px solid var(--line);
+    }
+    .funnelGrid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:0;
+      margin-top:0;
+      border-left:1px solid var(--line);
+    }
+    .metricCard,
+    .metricCard.primaryMetric{
+      position:relative;
+      min-height:170px;
+      padding:20px;
+      border:0;
+      border-right:1px solid var(--line);
+      border-bottom:1px solid var(--line);
+      border-radius:0;
+      background:transparent;
+      overflow:hidden;
+    }
+    .metricCard:before{display:none}
+    .metricCard.primaryMetric{background:#efede7}
+    .metricValue{
+      margin-bottom:8px;
+      font-family:Georgia,'Times New Roman',serif;
+      font-size:clamp(48px,7vw,78px);
+      font-weight:900;
+      letter-spacing:-.07em;
+      line-height:.88;
+      color:var(--accent);
+    }
+    .metricLabel{
+      margin-bottom:6px;
+      font-size:17px;
+      line-height:1.1;
+      font-weight:900;
+      color:var(--ink);
+    }
+    .metricSub{color:var(--muted);font-size:13px;line-height:1.45}
 
-    .reveal{opacity:0;transform:translateY(22px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.2,1)}
-    .reveal.visible{opacity:1;transform:none}
-    .revenueReveal{position:relative;display:inline-grid;place-items:center;min-width:min(100%,560px);min-height:94px;margin:2px auto 8px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
-    .revenueValue{transition:filter .4s ease,opacity .4s ease,transform .45s ease}
-    .revenueReveal:not(.revealed) .revenueValue{filter:blur(14px);opacity:.28;transform:scale(.985)}
-    .revenueCover{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;overflow:hidden;border-radius:18px}
-    .revenueCoverText{position:relative;z-index:3;padding:9px 14px;border:1px solid rgba(255,255,255,.13);border-radius:999px;background:rgba(9,11,15,.76);backdrop-filter:blur(8px);color:#fff;font-size:13px;font-weight:850;letter-spacing:.01em;transition:opacity .25s ease,transform .35s ease}
-    .shard{position:absolute;left:50%;top:50%;width:58px;height:38px;background:linear-gradient(135deg,rgba(255,122,0,.9),rgba(255,154,60,.38));clip-path:polygon(0 0,100% 18%,68% 100%,12% 74%);opacity:.72;transform:translate(-50%,-50%) rotate(var(--r)) translate(var(--x),var(--y));transition:transform .62s cubic-bezier(.18,.75,.25,1),opacity .55s ease}
+    .revenueCard{
+      position:relative;
+      margin-top:20px;
+      border:2px solid var(--accent);
+      border-radius:0;
+      padding:28px 24px;
+      text-align:left;
+      background:#fff;
+      box-shadow:6px 6px 0 rgba(179,13,24,.12);
+    }
+    .revenueCard:before{
+      content:"ОЦЕНКА ПОТЕРЬ";
+      display:inline-block;
+      margin-bottom:14px;
+      padding:5px 8px;
+      background:var(--accent);
+      color:#fff;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.12em;
+    }
+    .revenueEyebrow{font-size:13px;font-weight:800;color:var(--muted);margin-bottom:6px}
+    .revenueValue{
+      font-family:Georgia,'Times New Roman',serif;
+      font-size:clamp(48px,8vw,86px);
+      font-weight:900;
+      letter-spacing:-.07em;
+      line-height:.9;
+      color:var(--accent);
+      margin-bottom:8px;
+      text-shadow:none;
+    }
+    .revenueText{
+      max-width:720px;
+      margin:0 0 7px;
+      font-family:Georgia,'Times New Roman',serif;
+      font-size:clamp(22px,3vw,31px);
+      font-weight:900;
+      line-height:1.05;
+      color:var(--ink);
+    }
+    .revenueNote{font-size:12px;color:var(--muted)}
+    .revenueReveal{
+      position:relative;
+      display:grid;
+      place-items:start;
+      min-width:0;
+      min-height:85px;
+      margin:0 0 8px;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .revenueValue{transition:filter .35s ease,opacity .35s ease,transform .4s ease}
+    .revenueReveal:not(.revealed) .revenueValue{filter:blur(13px);opacity:.25;transform:scale(.985)}
+    .revenueCover{
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      pointer-events:none;
+      overflow:hidden;
+      border-radius:0;
+    }
+    .revenueCoverText{
+      position:relative;
+      z-index:3;
+      padding:8px 11px;
+      border:1px solid var(--ink);
+      border-radius:0;
+      background:var(--paper);
+      color:var(--ink);
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      transition:opacity .25s ease,transform .35s ease;
+    }
+    .shard{
+      position:absolute;
+      left:50%;
+      top:50%;
+      width:58px;
+      height:38px;
+      background:var(--accent);
+      clip-path:polygon(0 0,100% 18%,68% 100%,12% 74%);
+      opacity:.2;
+      transform:translate(-50%,-50%) rotate(var(--r)) translate(var(--x),var(--y));
+      transition:transform .62s cubic-bezier(.18,.75,.25,1),opacity .55s ease;
+    }
     .revenueReveal.revealed .revenueValue{filter:none;opacity:1;transform:scale(1)}
     .revenueReveal.revealed .revenueCoverText{opacity:0;transform:scale(.86)}
     .revenueReveal.revealed .shard{opacity:0;transform:translate(-50%,-50%) rotate(calc(var(--r) + 28deg)) translate(calc(var(--x) * 3.2),calc(var(--y) * 3.2)) scale(.45)}
 
-    .summaryCard{margin-top:18px;border:1px solid rgba(255,122,0,.22);background:linear-gradient(135deg,rgba(255,122,0,.10),rgba(255,122,0,.03));border-radius:24px;padding:26px;text-align:center}
-    .summaryText{font-size:clamp(19px,2.7vw,24px);line-height:1.65;color:#f2f5f8;max-width:760px;margin:0 auto}
+    .reveal{opacity:0;transform:translateY(18px);transition:opacity .45s ease,transform .45s ease}
+    .reveal.visible{opacity:1;transform:none}
+
+    .summaryCard{
+      margin-top:20px;
+      padding:22px 0 0;
+      border:0;
+      border-top:2px solid var(--ink);
+      border-radius:0;
+      background:transparent;
+      text-align:left;
+    }
+    .summaryText{
+      max-width:820px;
+      margin:0;
+      font-family:Georgia,'Times New Roman',serif;
+      font-size:clamp(20px,2.8vw,29px);
+      line-height:1.35;
+      color:var(--ink);
+    }
     .summaryText b{color:var(--accent)}
 
-    .cta{margin-top:18px;border:1px solid rgba(255,122,0,.24);background:linear-gradient(135deg,rgba(255,122,0,.1),rgba(255,122,0,.03));border-radius:24px;padding:22px}
-    .cta h2{font-size:clamp(30px,5vw,44px);line-height:1.04;letter-spacing:-.05em;margin-bottom:10px;text-align:center}
+    .cta{
+      margin-top:28px;
+      padding:24px;
+      border:1px solid var(--ink);
+      border-radius:0;
+      background:#eeece6;
+    }
+    .cta h2{
+      margin-bottom:12px;
+      text-align:left;
+      font-family:Georgia,'Times New Roman',serif;
+      font-size:clamp(31px,5vw,48px);
+      line-height:.98;
+      letter-spacing:-.05em;
+    }
     .cta h2 .accentHead{color:var(--accent)}
-    .small{font-size:12px;color:var(--muted);line-height:1.5;margin-top:14px}
+    .small{font-size:11px;color:var(--muted);line-height:1.5;margin-top:14px}
 
-    .leadbox{display:none;margin-top:18px}
+    .leadbox{display:none;margin-top:22px}
     .leadbox.active{display:block}
-    .success{display:none;margin-top:12px;padding:13px 14px;border:1px solid rgba(79,213,123,.25);background:rgba(79,213,123,.08);border-radius:14px;color:var(--success);font-size:14px}
-    .error{display:none;margin-top:12px;padding:13px 14px;border:1px solid rgba(255,91,91,.25);background:rgba(255,91,91,.08);border-radius:14px;color:var(--danger);font-size:14px}
+    .success,.error{
+      display:none;
+      margin-top:12px;
+      padding:12px;
+      border-radius:0;
+      font-size:13px;
+    }
+    .success{border:1px solid var(--success);background:#edf7f0;color:var(--success)}
+    .error{border:1px solid var(--danger);background:#fbefef;color:var(--danger)}
 
     .dateTrigger{display:flex;align-items:center;justify-content:space-between;text-align:left;cursor:pointer}
-    .dateTrigger.hasValue{border-color:rgba(255,122,0,.48);color:#fff}
+    .dateTrigger.hasValue{border-color:var(--accent);color:var(--ink)}
     .dateIcon{color:var(--accent);font-size:20px}
-    .dateModal{position:fixed;inset:0;z-index:9999;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.68);backdrop-filter:blur(5px);padding:16px}
+    .dateModal{
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      background:rgba(16,16,16,.55);
+      padding:16px;
+    }
     .dateModal.active{display:flex}
-    .dateSheet{width:min(100%,520px);background:#121720;border:1px solid var(--line);border-radius:26px;padding:18px;box-shadow:0 28px 90px rgba(0,0,0,.55);animation:sheetIn .22s ease}
-    @keyframes sheetIn{from{transform:translateY(20px);opacity:.5}to{transform:none;opacity:1}}
+    .dateSheet{
+      width:min(100%,520px);
+      background:var(--paper);
+      border:1px solid var(--ink);
+      border-radius:0;
+      padding:18px;
+      box-shadow:8px 8px 0 rgba(16,16,16,.16);
+      animation:sheetIn .2s ease;
+    }
+    @keyframes sheetIn{from{transform:translateY(18px);opacity:.5}to{transform:none;opacity:1}}
     .dateSheetTop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
-    .dateSheetTitle{font-size:22px;font-weight:900;letter-spacing:-.03em}
-    .closeDate{width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:#fff;font-size:24px;cursor:pointer}
+    .dateSheetTitle{font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:900;letter-spacing:-.03em}
+    .closeDate{
+      width:40px;height:40px;border-radius:0;border:1px solid var(--ink);
+      background:transparent;color:var(--ink);font-size:22px;cursor:pointer;
+    }
     .calendarHead{display:flex;align-items:center;justify-content:space-between;margin:8px 0 12px}
     .monthLabel{font-weight:900;text-transform:capitalize}
-    .monthNav{display:flex;gap:8px}
-    .monthBtn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:#fff;font-size:20px;cursor:pointer}
+    .monthNav{display:flex;gap:6px}
+    .monthBtn{
+      width:38px;height:38px;border-radius:0;border:1px solid var(--lineDark);
+      background:transparent;color:var(--ink);font-size:20px;cursor:pointer;
+    }
     .monthBtn:disabled{opacity:.3;cursor:default}
-    .weekdays,.calendarGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
-    .weekdays div{text-align:center;color:var(--muted);font-size:11px;font-weight:800;padding:4px 0}
-    .dayBtn{aspect-ratio:1;border:1px solid transparent;border-radius:12px;background:rgba(255,255,255,.025);color:#fff;font-weight:800;cursor:pointer}
-    .dayBtn:hover{border-color:rgba(255,122,0,.35)}
-    .dayBtn.selected{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
-    .dayBtn.today{border-color:rgba(255,122,0,.5)}
-    .dayBtn:disabled{opacity:.2;cursor:default}
-    .timeBlock{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
-    .timeLabel{font-size:13px;color:var(--muted);margin-bottom:8px}
-    .timePickerInput{width:100%;height:56px;border-radius:16px;border:1px solid var(--line);background:rgba(0,0,0,.2);color:#fff;padding:0 14px;font:inherit;font-size:18px;color-scheme:dark}
-    .dateConfirm{margin-top:14px;width:100%}
-    .dateHint{font-size:12px;color:var(--muted);margin-top:9px;text-align:center}
+    .weekdays,.calendarGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+    .weekdays div{text-align:center;color:var(--muted);font-size:10px;font-weight:800;padding:4px 0}
+    .dayBtn{
+      aspect-ratio:1;border:1px solid var(--line);border-radius:0;
+      background:#fff;color:var(--ink);font-weight:800;cursor:pointer;
+    }
+    .dayBtn:hover{border-color:var(--accent)}
+    .dayBtn.selected{background:var(--accent);border-color:var(--accent);color:#fff}
+    .dayBtn.today{border-color:var(--accent)}
+    .dayBtn:disabled{opacity:.22;cursor:default}
+    .timeBlock{margin-top:16px;padding-top:15px;border-top:1px solid var(--line)}
+    .timeLabel{font-size:12px;color:var(--muted);margin-bottom:8px}
+    .timePickerInput{
+      width:100%;height:54px;border-radius:0;border:1px solid var(--lineDark);
+      background:#fff;color:var(--ink);padding:0 13px;font-size:18px;color-scheme:light;
+    }
+    .dateConfirm{margin-top:12px;width:100%}
+    .dateHint{font-size:11px;color:var(--muted);margin-top:9px;text-align:center}
 
-    .thankScreen{display:none;margin-top:18px}
+    .thankScreen{display:none;margin-top:22px}
     .thankScreen.active{display:block}
-    .thankCard{border:1px solid rgba(255,122,0,.24);background:linear-gradient(135deg,rgba(255,122,0,.11),rgba(255,255,255,.02));border-radius:26px;padding:28px;text-align:center}
-    .thankIcon{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;margin:0 auto 16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:30px;font-weight:950;box-shadow:0 14px 32px rgba(255,122,0,.22)}
-    .thankTitle{font-size:clamp(30px,5vw,44px);font-weight:950;letter-spacing:-.045em;line-height:1.05;margin-bottom:10px}
-    .thankText{max-width:650px;margin:0 auto;color:#d7dce3;font-size:17px;line-height:1.55}
-    .appFooter{margin-top:22px;padding:18px 4px 0;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:12px;line-height:1.6}
+    .thankCard{
+      border:2px solid var(--accent);
+      background:#fff;
+      border-radius:0;
+      padding:30px;
+      text-align:left;
+      box-shadow:6px 6px 0 rgba(179,13,24,.12);
+    }
+    .thankIcon{
+      width:48px;height:48px;border-radius:0;display:grid;place-items:center;
+      margin:0 0 16px;background:var(--accent);color:#fff;font-size:26px;font-weight:900;
+      box-shadow:none;
+    }
+    .thankTitle{
+      font-family:Georgia,'Times New Roman',serif;
+      font-size:clamp(32px,5vw,48px);
+      font-weight:900;
+      letter-spacing:-.045em;
+      line-height:1;
+      margin-bottom:10px;
+    }
+    .thankText{max-width:680px;margin:0;color:#34312e;font-size:16px;line-height:1.55}
+    .appFooter{
+      margin-top:24px;
+      padding:16px 0 0;
+      border-top:1px solid var(--ink);
+      text-align:left;
+      color:var(--muted);
+      font-size:10px;
+      line-height:1.6;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
     .appFooter a{color:var(--accent);text-decoration:none}
 
     @media(max-width:760px){
-      .metricsGrid,.funnelGrid{grid-template-columns:1fr}
+      .funnelGrid{grid-template-columns:1fr}
+      .metricsGrid{grid-template-columns:1fr}
       .shelltop{display:block}
       .note{text-align:left;margin-top:8px}
+      .metricCard{min-height:0}
+      .brandMasthead{align-items:flex-start}
     }
     @media(max-width:560px){
-      .content{padding:17px}
+      .wrap{width:min(calc(100% - 20px),var(--max));padding-top:14px}
+      .brandMasthead{gap:10px}
+      .brandTag{font-size:8px;max-width:120px}
+      .content{padding:18px 15px 22px}
       .actions{display:grid}
       .btn{width:100%}
-      .q{font-size:25px}
-      .metricValue{font-size:50px}
-      .summaryCard{padding:22px 18px}
+      .q{font-size:29px}
+      .metricValue{font-size:52px}
+      .metricCard{padding:17px 15px}
+      .revenueCard,.cta,.thankCard{padding:20px 16px}
+      h1{font-size:clamp(40px,12vw,58px)}
     }
-  </style>
+</style>
 </head>
 <body>
   <main class="wrap">
-    <div class="eyebrow">Загрузка бригад под твои условия</div>
-    <h1>Сколько заказов <span class="accent">не хватает</span><br>до стабильной загрузки бригад?</h1>
-    <p class="lead"><span class="timeBadge">За 30 секунд</span> покажем, какой поток обращений и замеров нужен, чтобы бригада не простаивала.</p>
+    <header class="brandMasthead">
+      <div class="brandName">Артём <span>Спецкор</span></div>
+      <div class="brandTag">Между спросом<br>и предложением</div>
+    </header>
+    <div class="eyebrow">Расчёт загрузки / Натяжные потолки</div>
+    <h1>Хватает ли <span class="accent">заказов</span>,<br>чтобы стабильно загрузить бригады?</h1>
+    <p class="lead"><span class="timeBadge">За 30 секунд</span> рассчитаем, сколько объектов, замеров и обращений нужно под вашу текущую команду.</p>
 
     <section class="shell">
       <div class="shelltop">
-        <div class="brand">Расчёт загрузки бригад</div>
+        <div class="brand">Расчёт № 001 / Загрузка бригад</div>
         <div class="note">Средний объект ~40 м²<br>20 рабочих дней в месяц</div>
       </div>
 
@@ -215,7 +638,7 @@
 
       <div class="content">
         <section class="panel active" id="step1">
-          <div class="q">Сколько у тебя бригад?</div>
+          <div class="q">Сколько у вас бригад?</div>
           <div class="sub">По количеству бригад считаем ориентир стабильной загрузки.</div>
           <div class="grid">
             <button class="option" data-teams="1">1 бригада</button>
@@ -238,7 +661,7 @@
 
         <section class="panel" id="step3">
           <div class="q">Введите город, где оказываете услугу</div>
-          <div class="sub">Нужен основной город, чтобы дальше оценить спрос и реальную нагрузку под твои возможности.</div>
+          <div class="sub">Нужен основной город, чтобы дальше оценить спрос и реальную нагрузку под ваши возможности.</div>
           <input class="input" id="city" type="text" inputmode="text" autocomplete="address-level2" placeholder="Например, Воронеж" />
           <div class="actions">
             <button class="btn primary" id="calc">Показать расчёт</button>
@@ -249,7 +672,7 @@
         <section class="panel" id="loading">
           <div class="loader">
             <div class="eyebrow">Считаем ориентир</div>
-            <div class="loaderBig">Тебе нужны <span>клиенты, которые платят</span>.</div>
+            <div class="loaderBig">Вам нужны <span>клиенты, которые платят</span>.</div>
             <div class="spinner"></div>
             <p class="sub" style="margin-top:18px">Считаем нужный объём заказов, замеров, обращений и просмотров.</p>
           </div>
@@ -258,7 +681,7 @@
         <section class="panel" id="result">
           <div class="center">
             <div class="pill" id="cityPill">Город: —</div>
-            <div class="resultTitle">Вот какой объём нужен, чтобы бригады <span class="accent">не жили от случая к случаю</span></div>
+            <div class="resultTitle">Вот какой объём нужен для <span class="accent">стабильной загрузки бригад</span></div>
             <div class="arrow">↓</div>
           </div>
 
@@ -332,9 +755,9 @@
           </div>
 
           <div class="cta reveal">
-            <h2><span class="accentHead">Теперь главный вопрос:</span><br>реально ли забрать этот объём в твоём городе?</h2>
-            <div class="sub">Посмотрим спрос, конкуренцию и реальную нагрузку конкретно под твои возможности. Если рынок позволяет, скажем, какой для этого нужен бюджет, сколько будет стоить заявка и сколько будет стоить клиент, который готов платить.</div>
-            <button class="btn primary" id="openLead">Проверить объём по моему городу</button>
+            <h2><span class="accentHead">Теперь главный вопрос:</span><br>реально ли получить этот объём в вашем городе?</h2>
+            <div class="sub">Посмотрим спрос, конкуренцию и реальную нагрузку под ваши возможности. Если рынок позволяет, покажем, какой нужен бюджет и во сколько ориентировочно обойдутся обращение, замер и клиент.</div>
+            <button class="btn primary" id="openLead">Проверить спрос в моём городе</button>
           </div>
 
           <div class="small">Расчёт основан на средних показателях наших клиентов при объекте от 40 м² и 20 рабочих днях в месяц.</div>
@@ -354,8 +777,8 @@
         <section class="leadbox" id="leadBox">
           <div class="metricCard" style="margin-top:18px">
             <div class="eyebrow">Следующий шаг</div>
-            <h2 style="font-size:32px;line-height:1.04;letter-spacing:-.04em;margin:12px 0 10px">Проверим, способен ли спрос в твоём городе закрыть этот объём.</h2>
-            <div class="sub">Оставь контакт и выбери удобные дату и время. На коротком звонке уточним ситуацию и расскажем, что мы сможем сделать под твои условия работы.</div>
+            <h2 style="font-size:32px;line-height:1.04;letter-spacing:-.04em;margin:12px 0 10px">Проверим, способен ли спрос в вашем городе закрыть этот объём.</h2>
+            <div class="sub">Оставьте контакт и выберите удобные дату и время. До звонка проверим спрос и конкуренцию по вашему городу.</div>
             <div class="grid">
               <input class="input" id="name" type="text" placeholder="Имя" />
               <input class="input" id="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="18" placeholder="+7 (999) 000-00-00" />
@@ -366,7 +789,7 @@
               <span>Согласен на обработку персональных данных и ознакомлен с <a href="./privacy-policy.html" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">политикой конфиденциальности</a>.</span>
             </label>
             <button class="btn primary" id="submit" style="margin-top:12px">Отправить заявку</button>
-            <div class="success" id="success">Заявка отправлена. Свяжемся с тобой в указанное время.</div>
+            <div class="success" id="success">Заявка отправлена. Свяжемся с вами в указанное время.</div>
             <div class="error" id="error">Не удалось отправить заявку. Попробуй ещё раз.</div>
           </div>
         </section>
@@ -375,7 +798,7 @@
           <div class="thankCard">
             <div class="thankIcon">✓</div>
             <div class="thankTitle">Спасибо, заявка отправлена</div>
-            <p class="thankText">Мы получили данные и свяжемся с тобой в выбранные дату и время. До звонка дополнительно проверим спрос и конкуренцию по твоему городу.</p>
+            <p class="thankText">Мы получили данные и свяжемся с вами в выбранные дату и время. До звонка дополнительно проверим спрос и конкуренцию по вашему городу.</p>
           </div>
         </section>
       </div>
@@ -647,9 +1070,9 @@ document.getElementById('calc').onclick = () => {
 
     const resultText = document.getElementById('resultText');
     if(orderGap > 0){
-      resultText.innerHTML = 'Сейчас тебе не хватает примерно <b>' + orderGap + ' объектов в месяц</b> до стабильной загрузки. Чтобы выйти на нужный результат, нужен поток около <b>' + requiredLeads + ' обращений</b>, которые конвертируются примерно в <b>' + requiredMeasures + ' замера</b> и дают около <b>' + targetOrders + ' объектов</b>.';
+      resultText.innerHTML = 'Сейчас вам не хватает примерно <b>' + orderGap + ' объектов в месяц</b> до стабильной загрузки. Для нужного объёма потребуется около <b>' + requiredLeads + ' обращений</b>, которые конвертируются примерно в <b>' + requiredMeasures + ' замера</b> и дают около <b>' + targetOrders + ' объектов</b>.';
     } else {
-      resultText.innerHTML = 'По базовой модели ты уже находишься примерно на уровне стабильной загрузки. Следующий вопрос — насколько этот объём устойчив и не проседает ли загрузка по неделям.';
+      resultText.innerHTML = 'По базовой модели вы уже находитесь примерно на уровне стабильной загрузки. Следующий вопрос — насколько этот объём устойчив и не проседает ли загрузка по неделям.';
     }
 
     show('result');
