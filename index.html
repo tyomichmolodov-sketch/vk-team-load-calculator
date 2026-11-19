@@ -772,18 +772,13 @@ document.getElementById('submit').onclick = async () => {
   };
 
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 12000);
-
     await fetch(WEBHOOK, {
       method:'POST',
       mode:'no-cors',
       headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify(payload),
-      signal:controller.signal
+      body:JSON.stringify(payload)
     });
 
-    clearTimeout(timeoutId);
     ok.style.display='none';
     btn.textContent='Заявка отправлена';
     document.getElementById('leadBox').classList.remove('active');
@@ -793,9 +788,7 @@ document.getElementById('submit').onclick = async () => {
   } catch(e){
     console.error(e);
     err.style.display='block';
-    err.textContent = e && e.name === 'AbortError'
-      ? 'Сервер не ответил. Заявка не подтверждена — попробуй ещё раз.'
-      : 'Не удалось отправить заявку. Попробуй ещё раз.';
+    err.textContent='Не удалось отправить заявку. Проверь интернет и попробуй ещё раз.';
     btn.disabled=false;
     btn.textContent='Отправить заявку';
     btn.textContent='Отправить заявку';
